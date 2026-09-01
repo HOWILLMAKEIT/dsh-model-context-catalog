@@ -1,5 +1,11 @@
 # dsh-model-context-catalog
 
+[![npm version](https://img.shields.io/npm/v/dsh-model-context-catalog.svg)](https://www.npmjs.com/package/dsh-model-context-catalog)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-model-context-catalog.svg)](https://www.npmjs.com/package/dsh-model-context-catalog)
+[![CI](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml/badge.svg)](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml)
+[![DSH Plugin](https://img.shields.io/badge/DSH-plugin-4d6bfe.svg)](https://github.com/deepseek-ai/deepseek-harness)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 为 DeepSeek Harness（DSH）的 `llm-pi-ai` 模型维护准确的路由级
 `contextWindow`，避免长会话被错误判定为上下文溢出。
 
