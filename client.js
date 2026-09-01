@@ -15,14 +15,14 @@ window.__ModuleLoader__.load({
 .mcc-page{max-width:900px;padding:8px 4px 48px;color:var(--dsw-alias-label-primary)}
 .mcc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}.mcc-heading{min-width:0;max-width:680px}
 .mcc-title{font-size:21px;line-height:30px;font-weight:650;margin:0 0 5px}.mcc-sub{font-size:13px;line-height:20px;color:var(--dsw-alias-label-tertiary);margin:0}.mcc-count{margin-top:10px;font-size:12px;color:var(--dsw-alias-label-secondary)}
-.mcc-card{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);border-radius:13px;margin-bottom:10px;overflow:hidden;transition:border-color .16s ease,box-shadow .16s ease}.mcc-card.open{border-color:var(--dsw-static-deepseek-500,#4d6bfe);box-shadow:0 0 0 2px rgba(77,107,254,.08)}
+.mcc-card{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);border-radius:13px;margin-bottom:10px;overflow:hidden;transition:border-color .16s ease,box-shadow .16s ease}.mcc-card.open{border-color:var(--dsw-static-deepseek-500,#4d6bfe);box-shadow:0 0 0 2px rgba(77,107,254,.08);overflow:visible}
 .mcc-row{display:flex;gap:14px;align-items:center;padding:14px 16px}.mcc-main{min-width:0;flex:1}.mcc-route{font-size:14px;line-height:21px;font-weight:620;overflow-wrap:anywhere}.mcc-meta{margin-top:5px;font-size:12px;color:var(--dsw-alias-label-tertiary);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .mcc-badge{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:11px;background:var(--dsw-alias-bg-module-platform);color:var(--dsw-alias-label-secondary)}.mcc-badge.ok{color:#16865c;background:rgba(22,134,92,.09)}.mcc-badge.warn{color:#a55b00;background:rgba(229,139,0,.10)}.mcc-badge.off{color:var(--dsw-alias-label-tertiary)}
 .mcc-actions{display:flex;gap:6px;flex:none}.mcc-btn{appearance:none;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:8px;min-height:34px;padding:6px 11px;font:inherit;font-size:12px;line-height:18px;cursor:pointer;white-space:nowrap}.mcc-btn:hover{background:var(--dsw-alias-interactive-bg-hover)}.mcc-btn.primary{background:var(--dsw-static-deepseek-500,#4d6bfe);color:#fff;border-color:transparent;font-weight:600}.mcc-btn.primary:hover{filter:brightness(.96)}.mcc-btn.danger{color:#c44343}.mcc-btn:disabled{opacity:.48;cursor:not-allowed}
-.mcc-editor{border-top:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);padding:16px}.mcc-new{border:1px solid var(--dsw-alias-border-l2);border-radius:13px;margin:0 0 14px;overflow:hidden}.mcc-editor-title{font-size:13px;font-weight:620;margin:0 0 13px}.mcc-form{display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(160px,.8fr);gap:12px}.mcc-field{display:flex;flex-direction:column;gap:6px}.mcc-field.full{grid-column:1/-1}.mcc-label{font-size:12px;color:var(--dsw-alias-label-secondary)}.mcc-input{box-sizing:border-box;width:100%;height:38px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;padding:0 10px;font:inherit;font-size:13px;outline:none}.mcc-input:focus{border-color:var(--dsw-static-deepseek-500,#4d6bfe);box-shadow:0 0 0 2px rgba(77,107,254,.08)}select.mcc-input{cursor:pointer}.mcc-textarea{height:68px;padding:9px 10px;resize:vertical;line-height:20px}
+.mcc-editor{border-top:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);padding:16px}.mcc-new{border:1px solid var(--dsw-alias-border-l2);border-radius:13px;margin:0 0 14px;overflow:hidden}.mcc-new:has(.mcc-combo-trigger.open){overflow:visible}.mcc-editor-title{font-size:13px;font-weight:620;margin:0 0 13px}.mcc-form{display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(160px,.8fr);gap:12px}.mcc-field{display:flex;flex-direction:column;gap:6px}.mcc-field.full{grid-column:1/-1}.mcc-label{font-size:12px;color:var(--dsw-alias-label-secondary)}.mcc-input{box-sizing:border-box;width:100%;height:38px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;padding:0 10px;font:inherit;font-size:13px;outline:none}.mcc-input:focus{border-color:var(--dsw-static-deepseek-500,#4d6bfe);box-shadow:0 0 0 2px rgba(77,107,254,.08)}select.mcc-input{cursor:pointer}.mcc-textarea{height:68px;padding:9px 10px;resize:vertical;line-height:20px}
 .mcc-form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;margin-top:2px}.mcc-error{grid-column:1/-1;color:#c44343;font-size:12px}.mcc-empty{padding:34px;text-align:center;border:1px dashed var(--dsw-alias-border-l2);border-radius:12px;color:var(--dsw-alias-label-tertiary)}.mcc-hint{font-size:12px;line-height:19px;color:var(--dsw-alias-label-tertiary)}
 .mcc-combo{position:relative}.mcc-combo-trigger{width:100%;min-height:40px;display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;padding:0 10px;font:inherit;cursor:pointer}.mcc-combo-trigger:hover,.mcc-combo-trigger.open{border-color:var(--dsw-alias-border-l3)}.mcc-combo-trigger:disabled{opacity:.65;cursor:not-allowed}.mcc-combo-value{min-width:0;flex:1}.mcc-combo-primary{display:block;font-size:13px;line-height:20px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mcc-combo-chevron{flex:none;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);color:var(--dsw-alias-label-tertiary)}.mcc-combo-trigger.open .mcc-combo-chevron{transform:rotate(225deg) translate(-2px,-1px)}
-.mcc-combo-menu{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 5px);border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-overlay,var(--dsw-alias-bg-layer-1));border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);overflow:hidden}.mcc-combo-search-wrap{padding:6px 6px 3px}.mcc-combo-search{width:100%;height:32px;box-sizing:border-box;border:1px solid transparent;background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:7px;padding:0 9px;font:inherit;font-size:12px;outline:none}.mcc-combo-search:hover{border-color:var(--dsw-alias-border-l2)}.mcc-combo-search:focus{border-color:var(--dsw-alias-border-l3);background:var(--dsw-alias-bg-layer-1)}.mcc-combo-list{max-height:286px;overflow:auto;padding:3px 5px 5px;scrollbar-width:thin;scrollbar-color:var(--dsw-alias-border-l3) transparent}.mcc-combo-list::-webkit-scrollbar{width:6px}.mcc-combo-list::-webkit-scrollbar-track{background:transparent}.mcc-combo-list::-webkit-scrollbar-thumb{background:var(--dsw-alias-border-l3);border-radius:999px}.mcc-combo-group+.mcc-combo-group{margin-top:4px;padding-top:3px}.mcc-combo-group-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:6px;padding:8px 8px 4px;background:var(--dsw-alias-bg-overlay,var(--dsw-alias-bg-layer-1));color:var(--dsw-alias-label-tertiary)}.mcc-combo-group-title{font-size:11px;line-height:15px;font-weight:500}.mcc-combo-group-sub{min-width:0;font-size:10px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mcc-combo-option{width:100%;min-height:34px;display:flex;align-items:center;border:0;background:transparent;color:var(--dsw-alias-label-primary);border-radius:8px;padding:7px 9px;text-align:left;font:inherit;cursor:pointer}.mcc-combo-option:hover,.mcc-combo-option.active,.mcc-combo-option.selected{background:var(--dsw-alias-interactive-bg-hover,rgba(0,0,0,.06))}.mcc-combo-option.selected .mcc-combo-primary{font-weight:540}.mcc-combo-empty{padding:18px 12px;text-align:center;color:var(--dsw-alias-label-tertiary);font-size:12px}
+.mcc-combo-menu{position:fixed;z-index:1000;max-width:calc(100vw - 16px);border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1,#fff);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.16);overflow:hidden}.mcc-combo-search-wrap{padding:6px 6px 3px}.mcc-combo-search{width:100%;height:32px;box-sizing:border-box;border:1px solid transparent;background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:7px;padding:0 9px;font:inherit;font-size:12px;outline:none}.mcc-combo-search:hover{border-color:var(--dsw-alias-border-l2)}.mcc-combo-search:focus{border-color:var(--dsw-alias-border-l3);background:var(--dsw-alias-bg-layer-1)}.mcc-combo-list{max-height:var(--mcc-menu-list-max,370px);overflow:auto;padding:3px 5px 5px;scrollbar-width:thin;scrollbar-color:var(--dsw-alias-border-l3) transparent}.mcc-combo-list::-webkit-scrollbar{width:6px}.mcc-combo-list::-webkit-scrollbar-track{background:transparent}.mcc-combo-list::-webkit-scrollbar-thumb{background:var(--dsw-alias-border-l3);border-radius:999px}.mcc-combo-group+.mcc-combo-group{margin-top:4px;padding-top:3px}.mcc-combo-group-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:6px;padding:8px 8px 4px;background:var(--dsw-alias-bg-layer-1,#fff);color:var(--dsw-alias-label-tertiary)}.mcc-combo-group-title{font-size:11px;line-height:15px;font-weight:500}.mcc-combo-group-sub{min-width:0;font-size:10px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mcc-combo-option{width:100%;min-height:34px;display:flex;align-items:center;border:0;background:transparent;color:var(--dsw-alias-label-primary);border-radius:8px;padding:7px 9px;text-align:left;font:inherit;cursor:pointer}.mcc-combo-option:hover,.mcc-combo-option.active,.mcc-combo-option.selected{background:var(--dsw-alias-interactive-bg-hover,rgba(0,0,0,.06))}.mcc-combo-option.selected .mcc-combo-primary{font-weight:540}.mcc-combo-empty{padding:18px 12px;text-align:center;color:var(--dsw-alias-label-tertiary);font-size:12px}
 .mcc-notice{display:flex;align-items:center;gap:8px;border:1px solid var(--dsw-alias-border-l2);border-left:3px solid var(--dsw-static-deepseek-500,#4d6bfe);background:var(--dsw-alias-bg-layer-2);border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}
 .mcc-btn:focus-visible,.mcc-combo-trigger:focus-visible,.mcc-input:focus-visible{outline:2px solid var(--dsw-static-deepseek-500,#4d6bfe);outline-offset:1px}.mcc-combo-search:focus-visible{outline:none;box-shadow:0 0 0 1px var(--dsw-alias-border-l2)}
 @media(max-width:680px){.mcc-head{align-items:stretch;flex-direction:column}.mcc-head>.mcc-btn{align-self:flex-start}.mcc-form{grid-template-columns:1fr}.mcc-field.full,.mcc-form-actions,.mcc-error{grid-column:1}.mcc-row{align-items:flex-start;flex-direction:column}.mcc-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}}
@@ -92,19 +92,38 @@ window.__ModuleLoader__.load({
       }
       return [...groups.values()].sort((a, b) => a.title.localeCompare(b.title) || a.provider.localeCompare(b.provider))
     }
+    /** Position a tall fixed menu outside editor/card clipping boundaries. */
+    function floatingMenuLayout(rect, viewportWidth, viewportHeight) {
+      const margin = 8
+      const gap = 5
+      const width = Math.min(Math.max(rect.width, 240), Math.max(viewportWidth - margin * 2, 0))
+      const left = Math.min(Math.max(rect.left, margin), Math.max(viewportWidth - width - margin, margin))
+      const below = viewportHeight - rect.bottom - gap - margin
+      const above = rect.top - gap - margin
+      const opensAbove = below < 260 && above > below
+      const available = Math.max(opensAbove ? above : below, 160)
+      const menuHeight = Math.min(420, available)
+      const top = opensAbove ? Math.max(margin, rect.top - gap - menuHeight) : rect.bottom + gap
+      return {
+        position: 'fixed', left: `${Math.round(left)}px`, top: `${Math.round(top)}px`, width: `${Math.round(width)}px`,
+        '--mcc-menu-list-max': `${Math.max(Math.floor(menuHeight - 43), 117)}px`,
+      }
+    }
     let comboSeq = 0
     function ModelCombobox({ label, value, onChange, options, disabled, t }) {
       const [open, setOpen] = React.useState(false)
       const [query, setQuery] = React.useState('')
       const [activeIndex, setActiveIndex] = React.useState(0)
+      const [menuStyle, setMenuStyle] = React.useState(undefined)
       const rootRef = React.useRef(null)
       const triggerRef = React.useRef(null)
       const searchRef = React.useRef(null)
+      const menuFocusedRef = React.useRef(false)
       const listboxId = React.useRef(`mcc-combo-list-${++comboSeq}`).current
       const selected = options.find((option) => option.value === value)
       const visible = filterOptions(options, query)
       const groups = groupModelsByProvider(visible)
-      const close = () => { setOpen(false); setQuery(''); setActiveIndex(0) }
+      const close = () => { setOpen(false); setQuery(''); setActiveIndex(0); setMenuStyle(undefined); menuFocusedRef.current = false }
       const toggleOpen = () => {
         if (disabled) return
         if (open) { close(); return }
@@ -113,17 +132,34 @@ window.__ModuleLoader__.load({
       }
       React.useEffect(() => {
         if (!open) return undefined
+        const updatePosition = () => {
+          const rect = triggerRef.current?.getBoundingClientRect()
+          if (rect) setMenuStyle(floatingMenuLayout(rect, window.innerWidth, window.innerHeight))
+        }
         const closeOnOutside = (event) => { if (!rootRef.current?.contains(event.target)) close() }
         const closeOnEscape = (event) => { if (event.key === 'Escape') { close(); triggerRef.current?.focus() } }
+        updatePosition()
         document.addEventListener('pointerdown', closeOnOutside)
         document.addEventListener('keydown', closeOnEscape)
-        queueMicrotask(() => searchRef.current?.focus())
-        return () => { document.removeEventListener('pointerdown', closeOnOutside); document.removeEventListener('keydown', closeOnEscape) }
+        window.addEventListener('resize', updatePosition)
+        window.addEventListener('scroll', updatePosition, true)
+        const reposition = window.setInterval(updatePosition, 120)
+        return () => {
+          document.removeEventListener('pointerdown', closeOnOutside)
+          document.removeEventListener('keydown', closeOnEscape)
+          window.removeEventListener('resize', updatePosition)
+          window.removeEventListener('scroll', updatePosition, true)
+          window.clearInterval(reposition)
+        }
       }, [open])
       React.useEffect(() => {
-        if (!open) return
-        rootRef.current?.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'nearest' })
-      }, [open, activeIndex])
+        if (open && menuStyle && !menuFocusedRef.current) {
+          searchRef.current?.focus()
+          menuFocusedRef.current = true
+        }
+        const active = rootRef.current?.querySelector('[data-active="true"]')
+        if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' })
+      }, [open, menuStyle, activeIndex])
       const choose = (option) => { onChange(option.value); close() }
       const moveActive = (next) => setActiveIndex(visible.length === 0 ? 0 : (next + visible.length) % visible.length)
       const onMenuKeyDown = (event) => {
@@ -150,7 +186,7 @@ window.__ModuleLoader__.load({
             ),
             h('span', { className: 'mcc-combo-chevron', 'aria-hidden': 'true' }),
           ),
-          open ? h('div', { className: 'mcc-combo-menu' },
+          open ? h('div', { className: 'mcc-combo-menu', style: menuStyle ?? { visibility: 'hidden' } },
             h('div', { className: 'mcc-combo-search-wrap' },
               h('input', { ref: searchRef, className: 'mcc-combo-search', value: query, placeholder: t('searchModels'), onChange: (event) => { setQuery(event.target.value); setActiveIndex(0) }, onKeyDown: onMenuKeyDown, 'aria-label': t('searchModels'), 'aria-controls': listboxId }),
             ),
@@ -356,6 +392,7 @@ window.__ModuleLoader__.load({
     exports.configuredModels = configuredModels
     exports.groupModelsByProvider = groupModelsByProvider
     exports.filterOptions = filterOptions
+    exports.floatingMenuLayout = floatingMenuLayout
     return module.exports
   },
 })
