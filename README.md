@@ -58,6 +58,10 @@ dsh plugin --profile web add /absolute/path/to/dsh-model-context-catalog
 > 上下文窗口必须以对应服务商文档或控制台为准。配置过小会继续造成误报；配置过大
 > 可能掩盖真实溢出。
 
+## 效果展示
+
+![上下文窗口设置页面](https://raw.githubusercontent.com/HOWILLMAKEIT/dsh-model-context-catalog/main/image.png)
+
 ## 行为边界
 
 - 仅处理 `llm-pi-ai` 中已经配置的模型，不合成不存在的路由。
