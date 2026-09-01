@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 const clientUrl = new URL('../client.js', import.meta.url)
@@ -33,4 +34,16 @@ test('client bundle registers the expected DSH module and service contract', asy
     if (previousWindow === undefined) delete globalThis.window
     else globalThis.window = previousWindow
   }
+})
+
+test('model menu keeps the compact official-style visual contract', () => {
+  const source = readFileSync(clientUrl, 'utf8')
+
+  assert.match(source, /mcc-combo-option\.selected\{background:var\(--dsw-alias-interactive-bg-hover/)
+  assert.match(source, /mcc-combo-group-sub' }, `· \$\{group\.provider\}`/)
+  assert.match(source, /scrollbar-width:thin/)
+  assert.match(source, /mcc-combo-search:focus-visible\{outline:none/)
+  assert.doesNotMatch(source, /mcc-combo-check/)
+  assert.doesNotMatch(source, /t\('modelCount'/)
+  assert.doesNotMatch(source, /className: 'mcc-combo-secondary'/)
 })
