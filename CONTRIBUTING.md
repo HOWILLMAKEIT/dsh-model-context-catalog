@@ -75,7 +75,4 @@ npm pack --dry-run
 - [ ] 行为变化有测试
 - [ ] 用户可见变化已更新 README 或 CHANGELOG
 
-## 发布
 
-发布由 `vX.Y.Z` tag 触发 GitHub Actions，并通过 npm Trusted Publishing/OIDC
-执行。不要提交长期 `NPM_TOKEN`，也不要绕过 CI 本地发布正式版本。

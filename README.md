@@ -3,10 +3,9 @@
 为 DeepSeek Harness（DSH）的 `llm-pi-ai` 模型维护准确的路由级
 `contextWindow`，避免长会话被错误判定为上下文溢出。
 
-- DSH：`>= 0.1.1-rc.2`
-- Node.js：`>= 22`
-- 仓库：[`HOWILLMAKEIT/dsh-model-context-catalog`](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog)
-- 协议：MIT
+## 效果展示
+
+![上下文窗口设置页面](https://raw.githubusercontent.com/HOWILLMAKEIT/dsh-model-context-catalog/main/image.png)
 
 ## 解决什么问题
 
@@ -58,9 +57,7 @@ dsh plugin --profile web add /absolute/path/to/dsh-model-context-catalog
 > 上下文窗口必须以对应服务商文档或控制台为准。配置过小会继续造成误报；配置过大
 > 可能掩盖真实溢出。
 
-## 效果展示
 
-![上下文窗口设置页面](https://raw.githubusercontent.com/HOWILLMAKEIT/dsh-model-context-catalog/main/image.png)
 
 ## 行为边界
 
