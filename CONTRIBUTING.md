@@ -10,8 +10,8 @@
 5. Use `npm pack --dry-run` to inspect the package boundary before release.
 
 CI (`.github/workflows/ci.yml`) runs the same gates on Node 22 and 24, plus
-`dsh-plugin-checker` (manifest → real `dsh plugin add` → `--dump-config`
-verification, currently `continue-on-error` until its first green run).
+`dsh-plugin-checker` as a required gate (manifest → real `dsh plugin add` →
+`--dump-config` verification).
 
 The Web profile in this checkout links directly to this repository. DSH serves
 client plugins from the package export. Refresh the existing Web page after a

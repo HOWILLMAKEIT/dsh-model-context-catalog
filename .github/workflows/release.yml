@@ -33,11 +33,11 @@ jobs:
       id-token: write   # OIDC：npm Trusted Publishing 与 provenance 的唯一凭证来源
     environment: release   # 须与 npmjs.com Trusted Publisher 登记的 environment 一致
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22          # 对齐 dshhub compatibility.node (>=22)
           cache: npm

@@ -23,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -36,17 +36,15 @@ jobs:
 
   plugin-checker:
     # 对标报告 §9 P0：接入 dsh-plugin-checker 做 manifest → 安装 → dump-config 三级校验。
-    # 注意：该 Action 的入参尚未针对本插件实测过，首轮先 continue-on-error 观察；
-    # 在 CI 上完整跑通一次后，删除下面一行 continue-on-error 使其成为硬门禁。
+    # 首轮 CI 已完整跑通，现作为硬门禁执行。
     needs: test
     runs-on: ubuntu-latest
-    continue-on-error: true
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm

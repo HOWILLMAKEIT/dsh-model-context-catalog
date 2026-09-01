@@ -105,9 +105,8 @@ npm 校验的是 **owner / repo / workflow 文件名 / environment** 四元组�
 | GitHub Release | 发布 job | 幂等创建（已存在则跳过），Notes 从 CHANGELOG `## X.Y.Z` 小节提取 |
 
 常规门禁见 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)：node 22/24 矩阵
-跑 `npm ci` → `npm run check` → `npm test`；另接 dsh-plugin-checker
-（manifest → 安装 → dump-config 三级校验），首轮以 `continue-on-error` 观察跑通后
-移除该开关转为硬门禁（见 workflow 内注释）。
+跑 `npm ci` → `npm run check` → `npm test`；另以硬门禁运行 dsh-plugin-checker
+（manifest → 安装 → dump-config 三级校验）；首轮远程 CI 已完整跑通。
 
 ## 失败排查
 
@@ -145,9 +144,8 @@ npm 校验的是 **owner / repo / workflow 文件名 / environment** 四元组�
 
 ## 后续可选硬化
 
-- 将 `actions/checkout`、`actions/setup-node` 升级并按 commit SHA 固定
+- `actions/checkout` 与 `actions/setup-node` 已升级至 Node 24 runtime 的 v5；后续可进一步按 commit SHA 固定
   （对标 dsh-vision-router 的做法，见工作区 `reports/dsh-plugin-benchmark.md` §7.2）。
-- ci.yml 中 dsh-plugin-checker 首轮跑通后移除 `continue-on-error` 转为硬门禁。
 - README 加 release/provenance badge；发布 tag 的 Release Notes 已由流水线自动
   从 CHANGELOG 小节生成，保持该文件每版本更新即可。
 
