@@ -1,130 +1,121 @@
-# GLM context-overflow false positive: root-cause report
+# `pi-ai detected context overflow` 根因分析
 
-## Verdict
+## 结论
 
-The observed `pi-ai detected context overflow for model "glm-5.3[-flash]"`
-is an adapter-side false positive, not evidence that the GLM endpoint exhausted
-its real context window.
+在本次调查的长会话中，错误：
 
-The custom `glm-coding` rows omitted `contextWindow`. DSH 0.1.1-rc.2 therefore
-materialized both models with pi-ai's 262,144-token fallback. pi-ai's silent
-overflow heuristic converts a successful terminal `stop` into
-`CONTEXT_WINDOW_EXCEEDED` whenever reported input plus cache-read usage exceeds
-the supplied window. Tool-use finishes are not checked by that branch, which is
-why long tool loops continue and only the final natural-language response dies.
-
-## Independent evidence
-
-### Session `session-beb4a757-e2e9-4769-8c4e-5265fa627869`
-
-- Previous route: `deepseek-v4-pro`, recorded context window 1,024,000.
-- `dsh-context` projection at the switch:
-  - estimated request total: 430,111;
-  - provider-reported prompt: 544,630;
-  - newly recorded GLM context window: 262,144.
-- `glm-coding/glm-5.3` subsequently returned successful tool-use messages with
-  prompt usage up to 529,587 tokens.
-- The session then recorded 10 terminal overflow turns, 49 failed compactions,
-  and zero successful `compaction/summary` events.
-
-### Session `session-cb8ee285-0e9b-445c-91b1-d11600923df6`
-
-- The same `glm-5.3-flash` model previously used through `zai-coding-cn` was
-  recorded with a 1,000,000-token window.
-- Switching the route to custom `glm-coding` changed only the recorded capacity
-  to 262,144.
-- The endpoint still returned successful tool-use messages with prompt usage up
-  to 724,675 tokens.
-- Seven terminal turns were then classified as context overflow.
-
-A direct reproduction with pi-ai's exported implementation behavior and the
-observed 724,675-token usage gives:
-
-```json
-{
-  "terminalAtFallback": true,
-  "terminalAtRealWindow": false,
-  "toolUseAtFallback": false
-}
+```text
+pi-ai detected context overflow for model "glm-5.3-flash"
 ```
 
-## Code path (upstream anchors)
+并不是 GLM 服务端拒绝了请求，而是 **DSH/pi-ai 用猜测的 262,144 tokens 窗口，
+将服务端已经成功返回的 `stop` 响应重新分类为上下文溢出**。
 
-All permalinks verified against `deepseek-ai/deepseek-harness` tag
-`dsh-v0.1.1-rc.2` (commit `b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`) and the
-pi-ai vendored pi `v0.82.1` (commit `b4f293684bba718d59cc1157679bcf6157b3a7f5`).
-Every behavior below still exists unchanged in `dsh-v0.1.2-alpha.3`
-(`dd6322d604e00eec1ba5e0c8541159906a21094a`).
+同一个错误窗口也被 `/compact` 的摘要请求使用，因此普通回答和压缩会同时失败。
 
-1. `packages/llm/llm-pi-ai/src/config.ts#L61` defines
-   `DEFAULT_CONTEXT_WINDOW = 262144`, introduced upstream in
-   `f376ee23d1f9310892dd4796e3cba693e825dc4b` ("size unknown models and refuse
-   a section that cannot be served").
-2. The profile schema applies that value as `defaultContextWindow`; a configured
-   model row without `contextWindow` inherits the fallback. The
-   three-level materialization chain lives at
-   `packages/llm/llm-pi-ai/src/catalog.ts#L851` (rc.2) → `#L866` (alpha.3):
-   row value → built-in catalog value → guessed default.
-3. `streamWithSnapshot()` passes `model.contextWindow` to `toStreamChunks()`
-   (`packages/llm/llm-pi-ai/src/stream.ts#L76-L89`).
-4. pi-ai `isContextOverflow()` (`earendil-works/pi`
-   `packages/ai/src/utils/overflow.ts#L132-L161`) treats successful `stop`
-   usage above that value as silent overflow; the pi side has zero logic
-   changes between v0.82.1 and v0.84.4.
-5. DSH maps the flag to the synthetic message
-   `pi-ai detected context overflow …` (`packages/llm/llm/src/error.ts#L80-L86`).
-   The `length` stop-reason branch never recovers, and although pi upstream
-   added `isRecoverableLength` for bounded compact-and-retry (pi#7540,
-   `overflow.ts#L166-L175`), DSH does not consume it (zero references in both
-   rc.2 and alpha.3).
+## 故障链
 
-Scope boundary: models whose id resolves inside the installed pi-ai catalog
-are judged against real catalog values. Any other id — custom renames, gateway
-aliases, stale catalogs — falls through to the guessed default, which then
-feeds both the 0.8× pressure threshold and the overflow classifier.
+### 1. 未声明容量时使用猜测值
 
-## Why `/compact` also failed
+`llm-pi-ai` 为模型物化 `contextWindow`。模型行和内置目录都没有匹配值时，使用：
 
-`compaction-basic` chooses the latest routed model as its default summarizer.
-The summary request contained substantially more than the false 262,144-token
-limit. GLM could process that request, but its terminal summary `stop` hit the
-same silent-overflow false positive. The transaction wrote
-`compaction/end.error` and never committed `compaction/summary`, leaving the
-surface unchanged for the next attempt.
+```text
+DEFAULT_CONTEXT_WINDOW = 262144
+```
 
-## Applied repair
+这个值是适配器兜底，不是服务商确认的真实限制。
 
-The built-in catalog shipped with `dsh-model-context-catalog` declares the
-verified GLM routes at 1,000,000 tokens, and the settings page lets any route
-be corrected the same way. The plugin keeps those values reconciled through
-the public DSH settings API (`settings.update` with revision CAS and bounded
-retries); it does not patch adapter internals. The pi-ai settings watcher
-atomically rebuilds its immutable route snapshot after each correction. The
-Web UI shows which state each route is in — applied, pending, provider
-default, or not configured — and never presents the 262,144 fallback as a real
-limit. Usage instructions live in the [`README`](./README.md).
+### 2. 猜测值进入静默溢出判定
 
-The generated `glm-coding-vision` route needs no separate row: Vision Router's
-twin adapter delegates `resolveModel()` to `glm-coding` and mirrors its context
-metadata.
+pi-ai 会在成功终止的响应上检查：
 
-## Remaining upstream hardening
+```text
+usage.input + usage.cacheRead > contextWindow
+```
 
-The upstream design note itself
-(`.agents/notes/implemented/architecture/2026-07-10-after-call-compaction-pressure-and-overflow-recovery.md`,
-rc.2) admits the open edges: `maxOverflowRetries` defaults to 1, "provider
-wording and heuristic character density remain maintenance risks", and
-"surface compaction still cannot repair an envelope that alone exceeds the
-window". User-space fixes cannot address the following; DSH/pi-ai upstream
-would need to:
+当终止原因是 `stop` 且用量超过窗口时，响应会被标记为上下文溢出。DSH 随后把它
+转换为合成错误 `pi-ai detected context overflow …`。
 
-1. Decouple the guessed capacity from the overflow classifier — pressure
-   estimates may use a fallback, but turning a successful response into an
-   error should require an explicit model value, a trusted catalog value, or a
-   provider-confirmed limit (metadata provenance should be retained).
-2. Consume pi's `isRecoverableLength` (pi#7540) so a `length` stop below the
-   desired output cap gets a bounded compact-and-retry instead of a terminal
-   failure.
-3. Shrink the recovery window across retries; today a single fixed-window
-   recovery attempt is spent even when the summary itself self-overflows, and
-   summary self-overflow cannot self-heal.
+因此，只要真实模型窗口大于 262,144，而配置仍使用兜底值，就可能出现假阳性。
+
+### 3. 为什么工具调用成功，最终回答失败
+
+这条用量判定作用于最终 `stop` 响应；`toolUse` 响应不走同一分支。因此长工具循环可以
+持续执行，但最后的自然语言回答会被丢弃。
+
+已验证的判定结果：
+
+| 响应用量 | 传入窗口 | 终止原因 | 结果 |
+| --- | ---: | --- | --- |
+| 724,675 | 262,144 | `stop` | 被判定为溢出 |
+| 724,675 | 1,000,000 | `stop` | 正常 |
+| 724,675 | 262,144 | `toolUse` | 正常 |
+
+### 4. 为什么 `/compact` 也失败
+
+`compaction-basic` 默认使用最近一次路由模型生成摘要。摘要请求仍携带错误的
+262,144 窗口，因此生成成功后的 `stop` 响应会再次被误判。
+
+压缩事务随后记录 `compaction/end.error`，但不会提交 `compaction/summary`。历史记录
+没有缩短，下一次 `/compact` 会重复相同失败。
+
+## 会话证据
+
+### `session-beb4a757-e2e9-4769-8c4e-5265fa627869`
+
+- DSH 上下文估算：430,111 tokens；
+- provider prompt 用量：544,630 tokens；
+- 被记录的 GLM 窗口：262,144 tokens；
+- 10 个终止回合被判定为溢出；
+- 49 次压缩失败；
+- 成功的 `compaction/summary`：0。
+
+### `session-cb8ee285-0e9b-445c-91b1-d11600923df6`
+
+- 同一模型此前在另一条路由上使用 1,000,000 tokens 窗口；
+- 切换到自定义 `glm-coding` 路由后，记录值变成 262,144；
+- provider 成功处理过最高 724,675 tokens 的工具调用请求；
+- 7 个最终回合随后被判定为溢出。
+
+这些数据证明 262,144 并非该部署的实际处理上限。
+
+## 上游代码证据
+
+调查锚定以下版本：
+
+- DSH `dsh-v0.1.1-rc.2`：`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`
+- DSH `dsh-v0.1.2-alpha.3`：`dd6322d604e00eec1ba5e0c8541159906a21094a`
+- pi-ai `v0.82.1`：`b4f293684bba718d59cc1157679bcf6157b3a7f5`
+
+关键路径：
+
+1. [DSH 默认窗口 `262144`](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.1-rc.2/packages/llm/llm-pi-ai/src/config.ts#L61)
+2. [模型行 → 内置目录 → 默认值的回退链](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.1-rc.2/packages/llm/llm-pi-ai/src/catalog.ts#L851)
+3. [`contextWindow` 被传入流转换器](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.1-rc.2/packages/llm/llm-pi-ai/src/stream.ts#L76-L89)
+4. [pi-ai 静默溢出判定](https://github.com/earendil-works/pi/blob/b4f293684bba718d59cc1157679bcf6157b3a7f5/packages/ai/src/utils/overflow.ts#L132-L161)
+5. [DSH compaction 摘要与事务路径](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.1-rc.2/packages/compaction/compaction-basic/src/index.ts#L179-L223)
+
+这些行为在 `dsh-v0.1.2-alpha.3` 中仍然存在。pi 新增了
+`isRecoverableLength`，但该版本 DSH 尚未使用它。
+
+## 插件为什么有效
+
+`dsh-model-context-catalog` 在回退链的最高优先级——模型行——声明路由级
+`contextWindow`。同步后，pi-ai 收到的是该部署的实际容量，而不是 262,144 猜测值。
+
+插件通过 DSH 公开 Settings API 更新配置，并使用 revision CAS 和有限冲突重试。它不修改：
+
+- pi-ai 的溢出分类逻辑；
+- compaction 的摘要、区间或事务实现；
+- provider 错误文本；
+- 模型输出上限 `maxTokens`。
+
+## 上游应修复的部分
+
+插件只能纠正已知路由的元数据。长期方案仍应由上游完成：
+
+1. 区分“猜测容量”和“可信容量”的来源；
+2. 不应仅凭猜测值把 provider 成功响应改写为溢出错误；
+3. 保留 provider 明确返回的真实溢出错误；
+4. 接入 pi 的 `isRecoverableLength`，改进有限压缩与重试；
+5. 让摘要请求自身溢出时可以安全恢复，而不是永久回滚。

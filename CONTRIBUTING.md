@@ -1,69 +1,81 @@
 # Contributing
 
-## Development workflow
+感谢参与 `dsh-model-context-catalog`。
 
-1. Install dependencies with `npm install` (Node `>= 22`).
-2. Edit the source files at the repository root (`index.js`, `catalog.js`, and
-   `client.js`).
-3. Run `npm run build` to regenerate the publishable `lib/` directory.
-4. Run `npm run check && npm test` (19 `node:test` suites across `test/`).
-5. Use `npm pack --dry-run` to inspect the package boundary before release.
+## 开发环境
 
-CI (`.github/workflows/ci.yml`) runs the same gates on Node 22 and 24, plus
-`dsh-plugin-checker` as a required gate (manifest → real `dsh plugin add` →
-`--dump-config` verification).
+- Node.js `>= 22`
+- npm
+- DeepSeek Harness `>= 0.1.1-rc.2`
 
-The Web profile in this checkout links directly to this repository. DSH serves
-client plugins from the package export. Refresh the existing Web page after a
-client change; Host namespace/schema changes require a Host restart.
+```bash
+npm install
+npm run check
+npm test
+npm pack --dry-run
+```
 
-## Catalog rules
+`npm run check` 会重新生成 `lib/`、验证构建产物和包边界，并运行轻量静态检查。
+提交前必须保证全部命令通过。
 
-- Identify entries by the exact `(provider, model)` route pair.
-- Use a positive safe-integer token capacity taken from provider documentation
-  for that deployment — never invent or "round up" a value, and never present
-  the adapter fallback (262,144) as a real limit.
-- Record deployment-specific limits instead of assuming equal limits for the
-  same model ID across gateways.
-- Preserve unrelated provider/model fields during reconciliation.
-- Add or update tests for new catalog and settings behavior.
+## 代码结构
 
-## UI rules
+- `index.js`：Host 插件、Settings namespace 和同步控制器
+- `catalog.js`：目录数据与 `llm-pi-ai` 最小补丁规划
+- `client.js`：Web 设置页面
+- `lib/`：由 `npm run build` 生成的发布产物
+- `test/`：目录、Host、UI 和包契约测试
+- `scripts/`：构建、lint 和 bundle 验证脚本
 
-- Model choices must come from the resolved `llm-pi-ai` configuration; never
-  synthesize rows that are not configured.
-- Model names render verbatim (`model.name`, falling back to `model.id` only
-  when the name is absent). Plan suffixes such as `(Agent Plan)` are data —
-  do not rewrite, truncate, or strip them; CSS ellipsis is the only allowed
-  truncation.
-- Keep the create/edit surface limited to model, context window, and optional
-  note. Editing a row expands directly below that row.
-- Distinguish row-configured capacity from provider-level defaults; the
-  default must never display as the real limit (badge + hover value).
-- Keep listbox semantics intact (grouped options, `aria-activedescendant`,
-  Arrow/Home/End/Enter/Escape handling) and the three service notices
-  (catalog unavailable / read-only / configured list unavailable).
-- Use DSH theme tokens (`--dsw-alias-*`) with explicit color fallbacks for
-  critical controls.
+请修改根目录源文件，不要直接编辑 `lib/`。
 
-## Docs & release rules
+## 贡献规则
 
-- Every version gets a `## X.Y.Z` section in `CHANGELOG.md` before its tag;
-  the release pipeline refuses to publish without it.
-- Keep `README.md` (user language), `ROOT_CAUSE.md` (evidence chain), and this
-  file (process) non-overlapping: user-facing mechanism and instructions live
-  in the README, verified session evidence and upstream anchors in
-  ROOT_CAUSE, workflow rules here.
-- Releases are tag-driven via npm Trusted Publishing/OIDC; see
-  [`docs/release.md`](./docs/release.md). Never run `npm publish` locally, and
-  never introduce a long-lived `NPM_TOKEN`.
+### 路由与容量
 
-## Security
+- 使用精确的 `(provider, model)` 路由，不把不同网关视为同一部署。
+- `contextWindow` 必须是正安全整数，并有服务商文档或实际部署证据。
+- 不得把 262,144 的 adapter fallback 当成真实容量。
+- 同步时必须保留名称、endpoint、协议、凭据引用和其他未知字段。
+- 当前不维护 `maxTokens`。
 
-Report vulnerabilities privately via GitHub Security Advisories on
-`HOWILLMAKEIT/dsh-model-context-catalog` — the full policy, supported versions, the
-plugin's security boundary, and report hygiene (never include API keys or
-session logs) are documented in [`SECURITY.md`](./SECURITY.md). Keep that file
-in sync when the security boundary changes. The plugin requests no network
-permissions, ships no telemetry, and talks to DSH exclusively through the
-public settings API.
+### 模型选择器
+
+- 新建列表只来自 resolved `llm-pi-ai` 中已经配置的模型。
+- 不合成不存在的路由。
+- `model.name` 必须原样显示；仅在缺失时回退到 `model.id`。
+- 不得删除或改写 `(Agent Plan)` 等后缀。
+- 保持 provider displayName、provider key、搜索、键盘和 ARIA 行为可用。
+
+### 测试
+
+任何行为变化都需要对应回归测试。特别需要保护：
+
+- 精确路由匹配；
+- revision 冲突重试与最小补丁；
+- 模型名称忠实显示；
+- 构建产物与源码同步；
+- npm 包文件边界。
+
+## 文档分工
+
+- `README.md`：解决的问题、安装和使用方法
+- `ROOT_CAUSE.md`：会话证据、代码路径和根因分析
+- `CONTRIBUTING.md`：开发流程与维护约束
+- `CHANGELOG.md`：版本变化和 Release Notes
+
+文档应简洁，避免在多个文件重复同一段内容。
+
+## Pull Request 检查清单
+
+- [ ] 变更范围单一且说明清楚
+- [ ] `npm run check` 通过
+- [ ] `npm test` 通过
+- [ ] `npm pack --dry-run` 只包含预期文件
+- [ ] 行为变化有测试
+- [ ] 用户可见变化已更新 README 或 CHANGELOG
+
+## 发布
+
+发布由 `vX.Y.Z` tag 触发 GitHub Actions，并通过 npm Trusted Publishing/OIDC
+执行。不要提交长期 `NPM_TOKEN`，也不要绕过 CI 本地发布正式版本。
