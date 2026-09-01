@@ -1,0 +1,5 @@
+# Load after the base/settings/model-adapter rows. The plugin updates only the
+# llm-pi-ai user section and relies on that adapter's supported live reload.
+- insert:
+    - id: model-context-catalog
+      name: dsh-model-context-catalog

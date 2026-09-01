@@ -1,0 +1,54 @@
+# 持续集成：node 22/24 矩阵（对标 reports/dsh-plugin-benchmark.md §9 P0）。
+# 发布门槛之外的常规门禁；发布流水线见 release.yml。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+
+  plugin-checker:
+    # 对标报告 §9 P0：接入 dsh-plugin-checker 做 manifest → 安装 → dump-config 三级校验。
+    # 注意：该 Action 的入参尚未针对本插件实测过，首轮先 continue-on-error 观察；
+    # 在 CI 上完整跑通一次后，删除下面一行 continue-on-error 使其成为硬门禁。
+    needs: test
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: bowenliang123/dsh-plugin-checker@v1
