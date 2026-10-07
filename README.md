@@ -4,6 +4,7 @@
 <h1>Model Context Catalog</h1>
 
 [![npm version](https://img.shields.io/npm/v/dsh-model-context-catalog.svg)](https://www.npmjs.com/package/dsh-model-context-catalog)
+[![npm 总下载量](https://raw.githubusercontent.com/HOWILLMAKEIT/dsh-model-context-catalog/main/.github/badges/npm-downloads.svg)](https://www.npmjs.com/package/dsh-model-context-catalog)
 [![CI](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml/badge.svg)](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml)
 [![DSH Plugin](https://img.shields.io/badge/DSH-0.2-blue.svg)](https://github.com/deepseek-ai/deepseek-harness)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
