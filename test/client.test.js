@@ -26,7 +26,7 @@ test('client bundle registers the expected DSH module and service contract', asy
       return ReactStub
     })
     assert.equal(typeof plugin.apply, 'function')
-    assert.deepEqual(plugin.inject, ['slots', 'locale', 'settingsScope'])
+    assert.deepEqual(plugin.inject, ['slots', 'locale', 'configForms'])
     assert.equal(typeof plugin.configuredModels, 'function')
     assert.equal(typeof plugin.groupModelsByProvider, 'function')
     assert.equal(typeof plugin.filterOptions, 'function')

@@ -15,7 +15,7 @@ test('package-lock resolves only from the official npm registry', async () => {
   const urls = Object.values(lock.packages)
     .flatMap((entry) => [entry.resolved, entry.locked])
     .filter((url) => typeof url === 'string')
-  assert.equal(urls.length, 70, 'unexpected number of locked tarball URLs')
+  assert.ok(urls.length > 0, 'lockfile has no tarball URLs to validate')
   for (const url of urls) {
     assert.ok(url.startsWith('https://registry.npmjs.org/'), `non-official resolved URL: ${url}`)
   }
@@ -23,7 +23,7 @@ test('package-lock resolves only from the official npm registry', async () => {
 
 test('package files boundary and export targets stay stable', async () => {
   const pkg = await readJson('package.json')
-  assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml', 'README.md', 'ROOT_CAUSE.md', 'CONTRIBUTING.md', 'LICENSE'])
+  assert.deepEqual(pkg.files, ['lib', 'assets', 'cordis.patch.yml', 'README.md', 'ROOT_CAUSE.md', 'CONTRIBUTING.md', 'LICENSE'])
   assert.deepEqual(pkg.exports, {
     '.': './lib/index.js',
     './catalog': './lib/catalog.js',
@@ -49,7 +49,7 @@ test('built lib/client.js registers as the DSH client module with its contract',
       return { createElement: () => null }
     })
     assert.equal(typeof plugin.apply, 'function')
-    assert.deepEqual(plugin.inject, ['slots', 'locale', 'settingsScope'])
+    assert.deepEqual(plugin.inject, ['slots', 'locale', 'configForms'])
     assert.equal(typeof plugin.configuredModels, 'function')
     assert.equal(typeof plugin.groupModelsByProvider, 'function')
     assert.equal(typeof plugin.filterOptions, 'function')

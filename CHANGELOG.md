@@ -3,6 +3,23 @@
 `dsh-model-context-catalog` 的重要变更均记录在此。每个正式版本必须保留一个
 `## X.Y.Z` 小节；发布流水线会提取该小节作为 Release Notes，并拒绝发布缺少对应小节的版本。
 
+## 0.3.0
+
+对照 DSH `0.2.0-rc.2` 维护自定义模型路由的上下文窗口。
+
+- 将 Host 的旧 `settings.register/get/update` 迁移为 volatile `Config`、descriptor 和 revision CAS 路径 mutation。
+- 同步只写目标模型的 `contextWindow`，不再重写数组；保护凭据、模型别名及其他字段，冲突重试时重新定位模型。
+- 修复运行中保存目录未同步的问题：退出 DSH HMR 的异步事务上下文后再排队写入，避免被拒绝为嵌套事务；接收跨组件的 volatile 更新和 profile 重载通知。
+- 浏览器由 `settingsScope.bind` 迁移到共享的 `configForms.get`，不释放其他页面共用的表单。
+- 文档说明安装、启用与自定义路由的使用流程，加入真实设置截图和工作方式图。
+- 目录修改按条目提交并携带读取时的 revision，写入返回 false 时显示失败并保留编辑器。
+- 增加容量来源链接；核对模型行显式容量，缺少窗口或容量不一致时显示同步提示。
+- 移除默认容量目录与来源标签，新安装从空列表开始；保留已有配置与启停状态。
+- 设置页只保留启用开关，在未同步、模型被移除或写入失败时显示必要提示；编辑停用条目后保存不会自动启用。
+- 明确用途为自定义 provider、中转站和模型别名；补充容量来源、内置 provider 和原生配置的适用边界。
+- 更新 DSH peerDependencies 和客户端模块依赖，移除已失效的 client-runtime 依赖。
+- 测试限定插件 test 目录，加入真实 DSH 0.2 SettingsForms 回归。
+
 ## 0.2.1
 
 重构设置页的模型下拉栏，对齐 DSH 官方选择器的视觉与交互：

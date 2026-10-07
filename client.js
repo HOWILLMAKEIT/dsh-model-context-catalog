@@ -17,14 +17,14 @@ window.__ModuleLoader__.load({
 .mcc-title{font-size:21px;line-height:30px;font-weight:650;margin:0 0 5px}.mcc-sub{font-size:13px;line-height:20px;color:var(--dsw-alias-label-tertiary);margin:0}.mcc-count{margin-top:10px;font-size:12px;color:var(--dsw-alias-label-secondary)}
 .mcc-card{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);border-radius:13px;margin-bottom:10px;overflow:hidden;transition:border-color .16s ease,box-shadow .16s ease}.mcc-card.open{border-color:var(--dsw-static-deepseek-500,#4d6bfe);box-shadow:0 0 0 2px rgba(77,107,254,.08);overflow:visible}
 .mcc-row{display:flex;gap:14px;align-items:center;padding:14px 16px}.mcc-main{min-width:0;flex:1}.mcc-route{font-size:14px;line-height:21px;font-weight:620;overflow-wrap:anywhere}.mcc-meta{margin-top:5px;font-size:12px;color:var(--dsw-alias-label-tertiary);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.mcc-badge{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:11px;background:var(--dsw-alias-bg-module-platform);color:var(--dsw-alias-label-secondary)}.mcc-badge.ok{color:#16865c;background:rgba(22,134,92,.09)}.mcc-badge.warn{color:#a55b00;background:rgba(229,139,0,.10)}.mcc-badge.off{color:var(--dsw-alias-label-tertiary)}
+.mcc-toggle{display:inline-flex;align-items:center;gap:8px;margin-left:6px;color:var(--dsw-alias-label-secondary);font-size:12px;cursor:pointer}.mcc-switch{appearance:none;flex:none;width:32px;height:20px;padding:2px;border:0;border-radius:999px;background:var(--dsw-alias-border-l3,#b9bdc7);cursor:pointer;transition:background .16s ease}.mcc-switch[aria-checked="true"]{background:var(--dsw-static-deepseek-500,#4d6bfe)}.mcc-switch-thumb{display:block;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15);transition:transform .16s ease}.mcc-switch[aria-checked="true"] .mcc-switch-thumb{transform:translateX(12px)}.mcc-switch:disabled{opacity:.48;cursor:not-allowed}.mcc-sync-notice{margin-top:8px;font-size:12px;line-height:19px;color:#a55b00}.mcc-card.off .mcc-route,.mcc-card.off .mcc-meta{color:var(--dsw-alias-label-tertiary)}
 .mcc-actions{display:flex;gap:6px;flex:none}.mcc-btn{appearance:none;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:8px;min-height:34px;padding:6px 11px;font:inherit;font-size:12px;line-height:18px;cursor:pointer;white-space:nowrap}.mcc-btn:hover{background:var(--dsw-alias-interactive-bg-hover)}.mcc-btn.primary{background:var(--dsw-static-deepseek-500,#4d6bfe);color:#fff;border-color:transparent;font-weight:600}.mcc-btn.primary:hover{filter:brightness(.96)}.mcc-btn.danger{color:#c44343}.mcc-btn:disabled{opacity:.48;cursor:not-allowed}
 .mcc-editor{border-top:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);padding:16px}.mcc-new{border:1px solid var(--dsw-alias-border-l2);border-radius:13px;margin:0 0 14px;overflow:hidden}.mcc-new:has(.mcc-combo-trigger.open){overflow:visible}.mcc-editor-title{font-size:13px;font-weight:620;margin:0 0 13px}.mcc-form{display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(160px,.8fr);gap:12px}.mcc-field{display:flex;flex-direction:column;gap:6px}.mcc-field.full{grid-column:1/-1}.mcc-label{font-size:12px;color:var(--dsw-alias-label-secondary)}.mcc-input{box-sizing:border-box;width:100%;height:38px;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;padding:0 10px;font:inherit;font-size:13px;outline:none}.mcc-input:focus{border-color:var(--dsw-static-deepseek-500,#4d6bfe);box-shadow:0 0 0 2px rgba(77,107,254,.08)}select.mcc-input{cursor:pointer}.mcc-textarea{height:68px;padding:9px 10px;resize:vertical;line-height:20px}
 .mcc-form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;margin-top:2px}.mcc-error{grid-column:1/-1;color:#c44343;font-size:12px}.mcc-empty{padding:34px;text-align:center;border:1px dashed var(--dsw-alias-border-l2);border-radius:12px;color:var(--dsw-alias-label-tertiary)}.mcc-hint{font-size:12px;line-height:19px;color:var(--dsw-alias-label-tertiary)}
 .mcc-combo{position:relative}.mcc-combo-trigger{width:100%;min-height:40px;display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;padding:0 10px;font:inherit;cursor:pointer}.mcc-combo-trigger:hover,.mcc-combo-trigger.open{border-color:var(--dsw-alias-border-l3)}.mcc-combo-trigger:disabled{opacity:.65;cursor:not-allowed}.mcc-combo-value{min-width:0;flex:1}.mcc-combo-primary{display:block;font-size:13px;line-height:20px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mcc-combo-chevron{flex:none;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);color:var(--dsw-alias-label-tertiary)}.mcc-combo-trigger.open .mcc-combo-chevron{transform:rotate(225deg) translate(-2px,-1px)}
 .mcc-combo-menu{position:fixed;z-index:1000;max-width:calc(100vw - 16px);border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1,#fff);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.16);overflow:hidden}.mcc-combo-search-wrap{padding:6px 6px 3px}.mcc-combo-search{width:100%;height:32px;box-sizing:border-box;border:1px solid transparent;background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:7px;padding:0 9px;font:inherit;font-size:12px;outline:none}.mcc-combo-search:hover{border-color:var(--dsw-alias-border-l2)}.mcc-combo-search:focus{border-color:var(--dsw-alias-border-l3);background:var(--dsw-alias-bg-layer-1)}.mcc-combo-list{max-height:var(--mcc-menu-list-max,370px);overflow:auto;padding:3px 5px 5px;scrollbar-width:thin;scrollbar-color:var(--dsw-alias-border-l3) transparent}.mcc-combo-list::-webkit-scrollbar{width:6px}.mcc-combo-list::-webkit-scrollbar-track{background:transparent}.mcc-combo-list::-webkit-scrollbar-thumb{background:var(--dsw-alias-border-l3);border-radius:999px}.mcc-combo-group+.mcc-combo-group{margin-top:4px;padding-top:3px}.mcc-combo-group-head{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:6px;padding:8px 8px 4px;background:var(--dsw-alias-bg-layer-1,#fff);color:var(--dsw-alias-label-tertiary)}.mcc-combo-group-title{font-size:11px;line-height:15px;font-weight:500}.mcc-combo-group-sub{min-width:0;font-size:10px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mcc-combo-option{width:100%;min-height:34px;display:flex;align-items:center;border:0;background:transparent;color:var(--dsw-alias-label-primary);border-radius:8px;padding:7px 9px;text-align:left;font:inherit;cursor:pointer}.mcc-combo-option:hover,.mcc-combo-option.active,.mcc-combo-option.selected{background:var(--dsw-alias-interactive-bg-hover,rgba(0,0,0,.06))}.mcc-combo-option.selected .mcc-combo-primary{font-weight:540}.mcc-combo-empty{padding:18px 12px;text-align:center;color:var(--dsw-alias-label-tertiary);font-size:12px}
 .mcc-notice{display:flex;align-items:center;gap:8px;border:1px solid var(--dsw-alias-border-l2);border-left:3px solid var(--dsw-static-deepseek-500,#4d6bfe);background:var(--dsw-alias-bg-layer-2);border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}
-.mcc-btn:focus-visible,.mcc-combo-trigger:focus-visible,.mcc-input:focus-visible{outline:2px solid var(--dsw-static-deepseek-500,#4d6bfe);outline-offset:1px}.mcc-combo-search:focus-visible{outline:none;box-shadow:0 0 0 1px var(--dsw-alias-border-l2)}
+.mcc-btn:focus-visible,.mcc-switch:focus-visible,.mcc-combo-trigger:focus-visible,.mcc-input:focus-visible{outline:2px solid var(--dsw-static-deepseek-500,#4d6bfe);outline-offset:1px}.mcc-combo-search:focus-visible{outline:none;box-shadow:0 0 0 1px var(--dsw-alias-border-l2)}
 @media(max-width:680px){.mcc-head{align-items:stretch;flex-direction:column}.mcc-head>.mcc-btn{align-self:flex-start}.mcc-form{grid-template-columns:1fr}.mcc-field.full,.mcc-form-actions,.mcc-error{grid-column:1}.mcc-row{align-items:flex-start;flex-direction:column}.mcc-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}}
 `
 
@@ -37,12 +37,16 @@ window.__ModuleLoader__.load({
       return () => node.remove()
     }
 
-    function decodeCatalog(value) {
-      if (!value || typeof value !== 'object' || !value.entries || typeof value.entries !== 'object') return undefined
-      return value
-    }
-    function decodePi(value) {
-      return value && typeof value === 'object' ? value : undefined
+    /** Edit only changed catalog keys; unrelated concurrent entries survive. */
+    function entryMutations(previous, next) {
+      const ops = []
+      for (const key of Object.keys(previous)) {
+        if (!Object.hasOwn(next, key)) ops.push({ op: 'unset', path: ['entries', key] })
+      }
+      for (const [key, value] of Object.entries(next)) {
+        if (JSON.stringify(previous[key]) !== JSON.stringify(value)) ops.push({ op: 'set', path: ['entries', key], value })
+      }
+      return ops
     }
     function useScope(scope) {
       return React.useSyncExternalStore(
@@ -252,28 +256,32 @@ window.__ModuleLoader__.load({
       const snapshot = useScope(catalogScope)
       const piSnapshot = useScope(piScope)
       const entries = snapshot.value?.entries ?? {}
-      const baseEntries = snapshot.base?.entries ?? {}
       const options = configuredModels(piSnapshot.value)
       const [editingKey, setEditingKey] = React.useState(null)
       const [route, setRoute] = React.useState('')
       const [windowValue, setWindowValue] = React.useState('')
       const [note, setNote] = React.useState('')
+      const [sourceUrl, setSourceUrl] = React.useState('')
       const [error, setError] = React.useState('')
       const [saving, setSaving] = React.useState(false)
 
       const closeEditor = () => {
-        setEditingKey(null); setRoute(''); setWindowValue(''); setNote(''); setError('')
+        setEditingKey(null); setRoute(''); setWindowValue(''); setNote(''); setSourceUrl(''); setError('')
       }
       const startAdd = () => {
         const firstUnused = options.find((option) => !Object.values(entries).some((item) => item.provider === option.provider && item.model === option.model))
-        setEditingKey('__new__'); setRoute(firstUnused?.value ?? options[0]?.value ?? ''); setWindowValue(''); setNote(''); setError('')
+        setEditingKey('__new__'); setRoute(firstUnused?.value ?? options[0]?.value ?? ''); setWindowValue(''); setNote(''); setSourceUrl(''); setError('')
       }
       const startEdit = (key, item) => {
-        setEditingKey(key); setRoute(`${item.provider}\u0000${item.model}`); setWindowValue(String(item.contextWindow)); setNote(item.note ?? ''); setError('')
+        setEditingKey(key); setRoute(`${item.provider}\u0000${item.model}`); setWindowValue(String(item.contextWindow)); setNote(item.note ?? ''); setSourceUrl(item.sourceUrl ?? ''); setError('')
       }
       const commitEntries = async (next) => {
         setSaving(true); setError('')
-        try { await catalogScope.set('entries', next); return true }
+        try {
+          const accepted = await catalogScope.mutate(entryMutations(entries, next), snapshot.revision)
+          if (!accepted) { setError(t('writeRefused')); return false }
+          return true
+        }
         catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); return false }
         finally { setSaving(false) }
       }
@@ -284,12 +292,11 @@ window.__ModuleLoader__.load({
         const contextWindow = Number(windowValue)
         if (!selected || !Number.isSafeInteger(contextWindow) || contextWindow <= 0) { setError(t('invalid')); return }
         const key = `${selected.provider}::${selected.model}`
-        const previous = editingKey && editingKey !== '__new__' ? entries[editingKey] : undefined
         const next = { ...entries }
         if (editingKey && editingKey !== '__new__' && editingKey !== key) delete next[editingKey]
         next[key] = {
           provider: selected.provider, model: selected.model, contextWindow,
-          sourceUrl: previous?.sourceUrl ?? entries[key]?.sourceUrl ?? '', note: note.trim(), enabled: true,
+          sourceUrl: sourceUrl.trim(), note: note.trim(), enabled: existing?.enabled !== false,
         }
         if (await commitEntries(next)) closeEditor()
       }
@@ -306,8 +313,9 @@ window.__ModuleLoader__.load({
         return h('form', { className: 'mcc-editor', onSubmit: submit },
         h('div', { className: 'mcc-editor-title' }, title),
         h('div', { className: 'mcc-form' },
-          h(ModelCombobox, { label: t('chooseModel'), value: route, onChange: setRoute, options: editorOptions, disabled: editingKey !== '__new__', t }),
-          field(t('window'), windowValue, setWindowValue, { type: 'number', min: 1, placeholder: '1000000' }),
+          h(ModelCombobox, { label: t('chooseModel'), value: route, onChange: setRoute, options: editorOptions, disabled: editingKey !== '__new__' || !snapshot.writable, t }),
+          field(t('window'), windowValue, setWindowValue, { type: 'number', min: 1, placeholder: '128000' }),
+          field(t('sourceUrl'), sourceUrl, setSourceUrl, { full: true, placeholder: 'https://…' }),
           field(t('note'), note, setNote, { full: true, multiline: true, placeholder: t('notePlaceholder') }),
           editorOptions.length === 0 ? h('div', { className: 'mcc-error' }, t('noConfiguredModels')) : null,
           error ? h('div', { className: 'mcc-error' }, error) : null,
@@ -333,33 +341,38 @@ window.__ModuleLoader__.load({
         snapshot.status === 'unavailable' ? h('div', { className: 'mcc-notice' }, t('catalogUnavailable')) : null,
         snapshot.status === 'ready' && snapshot.writable === false ? h('div', { className: 'mcc-notice' }, t('readOnly')) : null,
         piSnapshot.status === 'unavailable' ? h('div', { className: 'mcc-notice' }, t('piUnavailable')) : null,
+        error && editingKey === null ? h('div', { className: 'mcc-error', role: 'alert' }, error) : null,
         editingKey === '__new__' ? h('div', { className: 'mcc-new' }, editor(t('addTitle'))) : null,
         rows.length === 0 ? h('div', { className: 'mcc-empty' }, t('empty')) : rows.map(([key, item]) => {
           const actual = actualContext(piSnapshot.value, item.provider, item.model)
           const enabled = item.enabled !== false
           const matched = actual !== undefined
-          const explicit = matched && actual.value !== undefined
+          const explicit = matched && actual.explicit && actual.value !== undefined
           const correct = explicit && actual.value === item.contextWindow
-          const defaulted = matched && !explicit
           const open = editingKey === key
-          return h('div', { className: `mcc-card${open ? ' open' : ''}`, key },
+          const syncNotice = enabled && piSnapshot.status === 'ready' && !correct
+            ? t(matched ? 'syncPending' : 'routeMissing') : null
+          return h('div', { className: `mcc-card${open ? ' open' : ''}${enabled ? '' : ' off'}`, key },
             h('div', { className: 'mcc-row' },
               h('div', { className: 'mcc-main' },
                 h('div', { className: 'mcc-route' }, `${item.provider} / ${item.model}`),
                 h('div', { className: 'mcc-meta' },
                   h('span', null, `${t('window')}: ${formatTokens(item.contextWindow)}`),
-                  h('span', {
-                    className: `mcc-badge ${!enabled || !matched ? 'off' : correct ? 'ok' : defaulted ? '' : 'warn'}`,
-                    title: defaulted && actual.value !== undefined ? `${t('providerDefault')}: ${formatTokens(actual.value)}` : undefined,
-                  }, !enabled ? t('disabled') : correct ? t('applied') : defaulted ? t('providerDefault') : matched ? t('pending') : t('unmatched')),
-                  h('span', { className: 'mcc-badge' }, Object.hasOwn(baseEntries, key) ? t('builtin') : t('custom')),
                 ),
                 item.note ? h('div', { className: 'mcc-meta' }, item.note) : null,
+                syncNotice ? h('div', { className: 'mcc-sync-notice', role: 'status' }, syncNotice) : null,
               ),
               h('div', { className: 'mcc-actions' },
                 h('button', { type: 'button', className: 'mcc-btn', onClick: () => open ? closeEditor() : startEdit(key, item) }, open ? t('close') : t('edit')),
-                h('button', { type: 'button', className: 'mcc-btn', onClick: () => toggle(key, item), disabled: saving }, enabled ? t('disable') : t('enable')),
-                !Object.hasOwn(baseEntries, key) ? h('button', { type: 'button', className: 'mcc-btn danger', onClick: () => remove(key), disabled: saving }, t('remove')) : null,
+                h('button', { type: 'button', className: 'mcc-btn danger', onClick: () => remove(key), disabled: saving || !snapshot.writable }, t('remove')),
+                h('label', { className: 'mcc-toggle' },
+                  h('span', null, t('enable')),
+                  h('button', {
+                    type: 'button', role: 'switch', className: 'mcc-switch',
+                    'aria-label': t('manageRoute', { route: `${item.provider} / ${item.model}` }),
+                    'aria-checked': enabled, onClick: () => toggle(key, item), disabled: saving || !snapshot.writable,
+                  }, h('span', { className: 'mcc-switch-thumb', 'aria-hidden': 'true' })),
+                ),
               ),
             ),
             open ? editor(t('editTitle')) : null,
@@ -369,18 +382,83 @@ window.__ModuleLoader__.load({
     }
 
     const dictionaries = {
-      zh: { nav: '上下文窗口', title: '模型上下文窗口', subtitle: '从当前已经配置的模型中选择，并为精确的 provider/model 路由维护容量。启用项会自动同步到 llm-pi-ai。', summary: '已启用 {active} 项 · 当前配置中发现 {configured} 个模型', add: '添加模型', addTitle: '新建上下文窗口', editTitle: '编辑上下文窗口', chooseModel: '选择已配置模型', selectPlaceholder: '选择模型', selectHint: '按服务商分组，可搜索服务商、模型名称或 ID', searchModels: '搜索服务商、模型…', noMatches: '没有匹配的模型', modelCount: '{count} 个模型', window: '上下文窗口', note: '备注（可选）', notePlaceholder: '例如：Coding Plan 长上下文路由', save: '保存', saving: '保存中…', cancel: '取消', close: '收起', edit: '编辑', enable: '启用', disable: '停用', remove: '删除', applied: '已生效', pending: '等待同步', unmatched: '未配置此路由', providerDefault: '提供方默认容量', disabled: '已停用', builtin: '内置', custom: '自定义', empty: '还没有模型容量条目', noConfiguredModels: 'llm-pi-ai 中暂未发现已经配置的模型。', catalogUnavailable: '目录设置暂不可用，请稍后重试。', piUnavailable: '已配置模型列表暂不可用。', readOnly: '当前为只读视图，无法保存更改。', invalid: '请选择模型，并填写大于 0 的整数上下文窗口。' },
-      en: { nav: 'Context windows', title: 'Model context windows', subtitle: 'Choose from currently configured models and maintain capacity for each exact provider/model route. Enabled entries sync to llm-pi-ai.', summary: '{active} enabled · {configured} configured models found', add: 'Add model', addTitle: 'New context window', editTitle: 'Edit context window', chooseModel: 'Configured model', selectPlaceholder: 'Choose a model', selectHint: 'Grouped by provider; search provider, name or ID', searchModels: 'Search providers, models…', noMatches: 'No matching models', modelCount: '{count} models', window: 'Context window', note: 'Note (optional)', notePlaceholder: 'For example: Coding Plan long-context route', save: 'Save', saving: 'Saving…', cancel: 'Cancel', close: 'Collapse', edit: 'Edit', enable: 'Enable', disable: 'Disable', remove: 'Delete', applied: 'Applied', pending: 'Pending sync', unmatched: 'Route not configured', providerDefault: 'Provider default capacity', disabled: 'Disabled', builtin: 'Built in', custom: 'Custom', empty: 'No context metadata entries yet', noConfiguredModels: 'No configured llm-pi-ai models were found.', catalogUnavailable: 'Catalog settings are unavailable right now.', piUnavailable: 'The configured model list is unavailable right now.', readOnly: 'Read-only view; changes cannot be saved.', invalid: 'Choose a model and enter a positive integer context window.' },
+      "zh": {
+        "nav": "上下文窗口",
+        "title": "模型上下文窗口",
+        "subtitle": "选择已配置模型，填写该部署的上下文窗口。启用后持续同步到模型配置。",
+        "summary": "已启用 {active} 项 · 已配置模型 {configured} 个",
+        "add": "添加模型",
+        "addTitle": "添加上下文窗口",
+        "editTitle": "编辑上下文窗口",
+        "chooseModel": "已配置模型",
+        "selectPlaceholder": "选择模型",
+        "searchModels": "搜索服务商、模型…",
+        "noMatches": "没有匹配的模型",
+        "window": "上下文窗口",
+        "sourceUrl": "容量来源链接（可选）",
+        "note": "备注（可选）",
+        "notePlaceholder": "记录该部署的容量依据",
+        "save": "保存",
+        "saving": "保存中…",
+        "cancel": "取消",
+        "close": "收起",
+        "edit": "编辑",
+        "enable": "启用",
+        "manageRoute": "启用 {route} 的窗口管理",
+        "remove": "删除",
+        "syncPending": "模型配置尚未同步，请稍后查看；持续未同步时请检查 DSH 日志。",
+        "routeMissing": "DSH 中已找不到这个模型，请重新添加模型或删除此条目。",
+        "empty": "点击“添加模型”，填写该部署的上下文窗口。",
+        "noConfiguredModels": "请先在 DSH 模型设置中添加模型。",
+        "catalogUnavailable": "窗口设置暂不可用，请稍后重试。",
+        "piUnavailable": "已配置模型列表暂不可用。",
+        "readOnly": "当前为只读视图，无法保存更改。",
+        "invalid": "请选择模型，并填写大于 0 的整数上下文窗口。",
+        "writeRefused": "配置已变更或当前无法写入，请核对最新内容后重试。"
+      },
+      "en": {
+        "nav": "Context windows",
+        "title": "Model context windows",
+        "subtitle": "Choose a configured model and enter its deployment limit. Enable it to keep the model configuration in sync.",
+        "summary": "{active} enabled · {configured} configured models",
+        "add": "Add model",
+        "addTitle": "Add context window",
+        "editTitle": "Edit context window",
+        "chooseModel": "Configured model",
+        "selectPlaceholder": "Choose a model",
+        "searchModels": "Search providers, models…",
+        "noMatches": "No matching models",
+        "window": "Context window",
+        "sourceUrl": "Capacity source URL (optional)",
+        "note": "Note (optional)",
+        "notePlaceholder": "Record the basis for this deployment limit",
+        "save": "Save",
+        "saving": "Saving…",
+        "cancel": "Cancel",
+        "close": "Collapse",
+        "edit": "Edit",
+        "enable": "Enable",
+        "manageRoute": "Enable context window management for {route}",
+        "remove": "Delete",
+        "syncPending": "The model configuration has not synced yet. If this persists, check the DSH logs.",
+        "routeMissing": "This model is no longer configured in DSH. Add it again or delete this entry.",
+        "empty": "Choose “Add model” to enter a deployment-specific context window.",
+        "noConfiguredModels": "Add a model in DSH model settings first.",
+        "catalogUnavailable": "Context window settings are unavailable right now.",
+        "piUnavailable": "The configured model list is unavailable right now.",
+        "readOnly": "Read-only view; changes cannot be saved.",
+        "invalid": "Choose a model and enter a positive integer context window.",
+        "writeRefused": "The configuration changed or is read-only. Review the latest values and retry."
+      }
     }
 
-    const inject = ['slots', 'locale', 'settingsScope']
+    const inject = ['slots', 'locale', 'configForms']
     function apply(ctx) {
       const t = ctx.locale.bind(LOCALE_NS)
-      const catalogScope = ctx.settingsScope.bind({ namespace: SETTINGS_NS, decode: decodeCatalog })
-      const piScope = ctx.settingsScope.bind({ namespace: PI_NS, decode: decodePi })
+      const catalogScope = ctx.configForms.get(SETTINGS_NS)
+      const piScope = ctx.configForms.get(PI_NS)
       ctx.effect(installStyles, 'model-context-catalog: settings styles')
       ctx.effect(() => ctx.locale.register(LOCALE_NS, dictionaries), 'model-context-catalog: dictionaries')
-      ctx.effect(() => () => { void catalogScope.dispose(); void piScope.dispose() }, 'model-context-catalog: settings scopes')
       ctx.slots.inject('settings.section', () => ctx.slots.register({
         name: 'settings.section', id: 'model-context-catalog', order: 11,
         label: () => t('nav'), inject: () => ({ catalogScope, piScope, t }),
@@ -393,6 +471,8 @@ window.__ModuleLoader__.load({
     exports.groupModelsByProvider = groupModelsByProvider
     exports.filterOptions = filterOptions
     exports.floatingMenuLayout = floatingMenuLayout
+    exports.entryMutations = entryMutations
+    exports.actualContext = actualContext
     return module.exports
   },
 })

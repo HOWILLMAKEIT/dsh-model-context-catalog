@@ -1,37 +1,13 @@
-const entry = (provider, model, contextWindow, sourceUrl, note) => Object.freeze({
-  provider,
-  model,
-  contextWindow,
-  sourceUrl,
-  note,
-})
-
-/**
- * Route-specific context capacities for the models in the current Web profile.
- *
- * Values are deliberately keyed by provider and model. The same wire model id
- * may be deployed with a different limit by another gateway or subscription.
+/** No deployment capacities are supplied by the plugin. Existing saved entries
+ * remain authoritative; users add their own exact routes and confirmed limits.
+ * Keep the empty export for consumers of the earlier catalog API.
  */
-export const MODEL_CONTEXT_CATALOG = Object.freeze([
-  entry('glm-coding', 'glm-5.3', 1_000_000, 'https://docs.bigmodel.cn/cn/guide/start/model-overview', 'GLM Coding Plan long-context route'),
-  entry('glm-coding', 'glm-5.3-flash', 1_000_000, 'https://docs.bigmodel.cn/cn/guide/start/model-overview', 'GLM Coding Plan long-context route'),
-
-  entry('ark-agent-plan-cn', 'doubao-seed-evolving', 1_024_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan'),
-  entry('ark-agent-plan-cn', 'doubao-seed-2.1-pro', 256_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan'),
-  entry('ark-agent-plan-cn', 'doubao-seed-2.1-turbo', 256_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan'),
-  entry('ark-agent-plan-cn', 'doubao-seed-2.0-lite', 256_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan'),
-  entry('ark-agent-plan-cn', 'doubao-seed-2.0-mini', 256_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan'),
-  entry('ark-agent-plan-cn', 'glm-5.3', 1_024_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan deployment limit'),
-  entry('ark-agent-plan-cn', 'kimi-k3', 1_024_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan deployment limit'),
-  entry('ark-agent-plan-cn', 'deepseek-v4-pro', 1_024_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan deployment limit'),
-  entry('ark-agent-plan-cn', 'minimax-m3', 1_024_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan deployment limit'),
-  entry('ark-agent-plan-cn', 'deepseek-v4-flash', 1_024_000, 'https://www.volcengine.com/docs/82379/2549861', 'Ark Agent Plan deployment limit'),
-])
+export const MODEL_CONTEXT_CATALOG = Object.freeze([])
 
 export const catalogEntryKey = (provider, model) => `${provider}::${model}`
 const catalogKey = (provider, model) => `${provider}\u0000${model}`
 
-/** Convert the built-in array to the settings namespace's merge-friendly dict. */
+/** Convert a supplied route catalog to the settings namespace's merge-friendly dict. */
 export function catalogSettingsEntries(catalog = MODEL_CONTEXT_CATALOG) {
   return Object.fromEntries(catalog.map((item) => [catalogEntryKey(item.provider, item.model), {
     provider: item.provider,
@@ -82,21 +58,27 @@ export function contextMetadata(provider, model, catalog = MODEL_CONTEXT_CATALOG
 export function planPiAiContextUpdate(section, catalog = MODEL_CONTEXT_CATALOG) {
   const providers = section?.providers
   if (providers === null || typeof providers !== 'object' || Array.isArray(providers)) {
-    return Object.freeze({ patch: null, corrections: Object.freeze([]) })
+    return Object.freeze({ patch: null, ops: Object.freeze([]), corrections: Object.freeze([]) })
   }
 
   const indexed = indexCatalog(catalog)
   const providerPatch = {}
   const corrections = []
+  const ops = []
 
   for (const [provider, profile] of Object.entries(providers)) {
     if (!Array.isArray(profile?.models)) continue
     let changed = false
-    const models = profile.models.map((model) => {
+    const models = profile.models.map((model, index) => {
       if (model === null || typeof model !== 'object' || Array.isArray(model) || typeof model.id !== 'string') return model
       const expected = indexed.get(catalogKey(provider, model.id))
       if (expected === undefined || model.contextWindow === expected.contextWindow) return model
       changed = true
+      ops.push(Object.freeze({
+        op: 'set',
+        path: Object.freeze(['providers', provider, 'models', String(index), 'contextWindow']),
+        value: expected.contextWindow,
+      }))
       corrections.push(Object.freeze({
         provider,
         model: model.id,
@@ -111,6 +93,7 @@ export function planPiAiContextUpdate(section, catalog = MODEL_CONTEXT_CATALOG) 
 
   return Object.freeze({
     patch: corrections.length === 0 ? null : { providers: providerPatch },
+    ops: Object.freeze(ops),
     corrections: Object.freeze(corrections),
   })
 }

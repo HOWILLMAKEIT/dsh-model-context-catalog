@@ -43,7 +43,7 @@ console.log(`verify-bundle: lib/ in sync with ${sources.length} sources`)
       assert.equal(id, 'react')
       return { createElement: () => null }
     })
-    assert.deepEqual(plugin.inject, ['slots', 'locale', 'settingsScope'])
+    assert.deepEqual(plugin.inject, ['slots', 'locale', 'configForms'])
     for (const key of ['apply', 'configuredModels', 'groupModelsByProvider', 'filterOptions']) {
       assert.equal(typeof plugin[key], 'function', `lib/client.js factory export "${key}" missing`)
     }
@@ -65,6 +65,9 @@ const expectedFiles = [
   'lib/catalog.js',
   'lib/client.js',
   'lib/index.js',
+  'assets/settings.png',
+  'assets/workflow.jpg',
+  'assets/workflow.html',
 ].sort()
 const stdout = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts', '--loglevel=error'], {
   cwd: root,

@@ -9,6 +9,19 @@ import {
   planPiAiContextUpdate,
 } from '../catalog.js'
 
+const catalog = [
+  { provider: 'glm-coding', model: 'glm-5.3', contextWindow: 1_000_000 },
+  { provider: 'glm-coding', model: 'glm-5.3-flash', contextWindow: 1_000_000 },
+  { provider: 'ark-agent-plan-cn', model: 'glm-5.3', contextWindow: 1_024_000 },
+]
+
+test('an empty user catalog never supplies model capacities', () => {
+  assert.deepEqual(catalogSettingsEntries(), {})
+  assert.equal(contextMetadata('glm-coding', 'glm-5.3'), undefined)
+  const plan = planPiAiContextUpdate({ providers: { 'glm-coding': { models: [{ id: 'glm-5.3' }] } } })
+  assert.deepEqual(plan.ops, [])
+})
+
 test('corrects the configured GLM routes and preserves every other field', () => {
   const section = {
     providers: {
@@ -23,7 +36,7 @@ test('corrects the configured GLM routes and preserves every other field', () =>
     },
   }
 
-  const plan = planPiAiContextUpdate(section)
+  const plan = planPiAiContextUpdate(section, catalog)
   assert.deepEqual(plan.corrections.map(({ provider, model, from, to }) => ({ provider, model, from, to })), [
     { provider: 'glm-coding', model: 'glm-5.3', from: undefined, to: 1_000_000 },
     { provider: 'glm-coding', model: 'glm-5.3-flash', from: 262_144, to: 1_000_000 },
@@ -46,18 +59,18 @@ test('returns no patch when configured capacities already match', () => {
         ],
       },
     },
-  })
+  }, catalog)
   assert.equal(plan.patch, null)
   assert.deepEqual(plan.corrections, [])
 })
 
 test('keeps route-specific limits for the same model id', () => {
-  assert.equal(contextMetadata('glm-coding', 'glm-5.3').contextWindow, 1_000_000)
-  assert.equal(contextMetadata('ark-agent-plan-cn', 'glm-5.3').contextWindow, 1_024_000)
+  assert.equal(contextMetadata('glm-coding', 'glm-5.3', catalog).contextWindow, 1_000_000)
+  assert.equal(contextMetadata('ark-agent-plan-cn', 'glm-5.3', catalog).contextWindow, 1_024_000)
 })
 
 test('round-trips the settings catalog and omits disabled entries', () => {
-  const entries = catalogSettingsEntries()
+  const entries = catalogSettingsEntries(catalog)
   const key = catalogEntryKey('glm-coding', 'glm-5.3')
   entries[key] = { ...entries[key], enabled: false }
   entries['custom::model'] = {

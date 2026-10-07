@@ -1,7 +1,7 @@
 {
   "name": "dsh-model-context-catalog",
-  "version": "0.2.1",
-  "description": "Context-window metadata catalog and settings UI for configured DeepSeek Harness model routes.",
+  "version": "0.3.0",
+  "description": "Maintain deployment-specific context windows for custom DeepSeek Harness model routes.",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -12,6 +12,7 @@
   },
   "files": [
     "lib",
+    "assets",
     "cordis.patch.yml",
     "README.md",
     "ROOT_CAUSE.md",
@@ -23,7 +24,7 @@
     "lint": "node scripts/lint.mjs",
     "verify:bundle": "node scripts/verify-bundle.mjs",
     "check": "npm run build && npm run verify:bundle && npm run lint",
-    "test": "npm run build && node --test",
+    "test": "npm run build && node --test test/*.test.js",
     "prepack": "npm run check && npm test"
   },
   "dsh": {
@@ -32,7 +33,6 @@
     },
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-runtime",
         "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-ui-settings",
         "@deepseek-ai/dsh-client-ui-slots"
@@ -43,11 +43,18 @@
   "dshhub": {
     "schemaVersion": 1,
     "displayName": "Model Context Catalog",
-    "summary": "维护模型上下文窗口目录，自动修正 llm-pi-ai 元数据，并提供原生 Web 设置页面。",
-    "categories": ["模型", "Web UI", "配置"],
-    "surfaces": ["host", "web"],
+    "summary": "为自定义模型与中转站路由集中维护上下文窗口，并同步到 DSH 模型配置。",
+    "categories": [
+      "模型",
+      "Web UI",
+      "配置"
+    ],
+    "surfaces": [
+      "host",
+      "web"
+    ],
     "compatibility": {
-      "dsh": ">=0.1.1-rc.2",
+      "dsh": ">=0.2.0-rc.2 <0.3.0-0",
       "node": ">=22"
     },
     "permissions": {
@@ -63,16 +70,15 @@
     "web-ui"
   ],
   "dependencies": {
-    "@deepseek-ai/schemastery": "^3.18.1"
+    "@deepseek-ai/schemastery": "~3.18.4"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-llm": "^0.1.1-rc.2",
-    "@deepseek-ai/dsh-settings": "^0.1.1-rc.2",
-    "@deepseek-ai/dsh-client-runtime": "^0.1.1-rc.2",
-    "@deepseek-ai/dsh-client-locale": "^0.1.1-rc.2",
-    "@deepseek-ai/dsh-client-ui-settings": "^0.1.1-rc.2",
-    "@deepseek-ai/dsh-client-ui-slots": "^0.1.1-rc.2",
+    "@deepseek-ai/cordis": "~4.0.4",
+    "@deepseek-ai/dsh-client-locale": "~0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-settings": "~0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-slots": "~0.2.0-rc.2",
+    "@deepseek-ai/dsh-llm": "~0.2.0-rc.2",
+    "@deepseek-ai/dsh-settings": "~0.2.0-rc.2",
     "react": "^18.3.1"
   },
   "engines": {
@@ -86,5 +92,9 @@
     "type": "git",
     "url": "git+https://github.com/HOWILLMAKEIT/dsh-model-context-catalog.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@deepseek-ai/cosmokit": "1.8.5",
+    "react-test-renderer": "^18.3.1"
+  }
 }

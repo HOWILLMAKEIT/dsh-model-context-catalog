@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model Context Catalog — 工作方式</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; background: #fff; color: #202936; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
+    .figure { width: 1120px; height: 240px; padding: 48px 36px; display: flex; align-items: center; background: #fff; border: 1px solid #e3e7ee; border-radius: 16px; }
+    .step { width: 280px; height: 144px; flex: none; border: 1px solid #dce2eb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+    .step.primary { border-color: #aab8ff; background: #f5f7ff; }
+    h2 { margin: 0; font-size: 23px; font-weight: 600; }
+    p { margin: 0; font-size: 18px; color: #657287; line-height: 1.45; text-align: center; }
+    code { font-size: 18px; font-family: "SFMono-Regular", Consolas, monospace; color: #53647e; }
+    .link { width: 104px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 10px; color: #63738a; font-size: 15px; }
+    .link svg { width: 70px; height: 18px; stroke: #8899b0; stroke-width: 1.6; fill: none; }
+  </style>
+</head>
+<body>
+  <main class="figure" aria-label="在插件中选择自定义路由并填写窗口，自动同步到模型配置，DSH 读取窗口处理上下文">
+    <section class="step primary">
+      <h2>在插件中设置</h2>
+      <p>选择自定义路由<br>填写窗口并保存</p>
+    </section>
+    <div class="link"><span>自动同步</span><svg viewBox="0 0 70 18" aria-hidden="true"><path d="M2 9h65M60 3l7 6-7 6"/></svg></div>
+    <section class="step">
+      <h2>DSH 模型配置</h2>
+      <code>contextWindow</code>
+    </section>
+    <div class="link"><span>读取窗口</span><svg viewBox="0 0 70 18" aria-hidden="true"><path d="M2 9h65M60 3l7 6-7 6"/></svg></div>
+    <section class="step">
+      <h2>DSH 上下文管理</h2>
+      <p>按该窗口处理上下文</p>
+    </section>
+  </main>
+</body>
+</html>
