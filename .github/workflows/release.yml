@@ -160,13 +160,16 @@ jobs:
       - name: Verify published package and provenance
         if: github.event_name == 'push'
         run: |
-          for attempt in 1 2 3 4 5 6; do
+          # npm accepts a publish before package processing completes. Allow
+          # five minutes and refresh metadata rather than reusing preflight's
+          # cached response, which correctly did not contain the new version.
+          for attempt in $(seq 1 30); do
             if npm view "dsh-model-context-catalog@${RELEASE_VERSION}" \
-                 version dist-tags dist.attestations --json; then
+                 version dist-tags dist.attestations --json --prefer-online; then
               exit 0
             fi
-            echo "attempt ${attempt}: registry 尚未返回该版本，5 秒后重试..."
-            sleep 5
+            echo "attempt ${attempt}: registry 尚未返回该版本，10 秒后重试..."
+            sleep 10
           done
           echo "::error::发布后无法在 registry 上查询到该版本"
           exit 1
