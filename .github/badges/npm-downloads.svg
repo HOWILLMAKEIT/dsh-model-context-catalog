@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="156" height="20" role="img" aria-label="npm 总下载量: 1,209">
-  <title>npm 总下载量: 1,209（累计至 2026-10-06）</title>
+  <title>npm 总下载量: 1,209（累计至 2026-10-07）</title>
   <linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
   <clipPath id="r"><rect width="156" height="20" rx="3"/></clipPath>
   <g clip-path="url(#r)"><rect width="105" height="20" fill="#555"/><rect x="105" width="51" height="20" fill="#4c1"/><rect width="156" height="20" fill="url(#s)"/></g>
