@@ -7,7 +7,7 @@ import {
   catalogSettingsEntries,
   contextMetadata,
   planPiAiContextUpdate,
-} from '../catalog.js'
+} from '../src/domain/catalog.js'
 
 const catalog = [
   { provider: 'glm-coding', model: 'glm-5.3', contextWindow: 1_000_000 },
@@ -37,10 +37,13 @@ test('corrects the configured GLM routes and preserves every other field', () =>
   }
 
   const plan = planPiAiContextUpdate(section, catalog)
-  assert.deepEqual(plan.corrections.map(({ provider, model, from, to }) => ({ provider, model, from, to })), [
-    { provider: 'glm-coding', model: 'glm-5.3', from: undefined, to: 1_000_000 },
-    { provider: 'glm-coding', model: 'glm-5.3-flash', from: 262_144, to: 1_000_000 },
-  ])
+  assert.deepEqual(
+    plan.corrections.map(({ provider, model, from, to }) => ({ provider, model, from, to })),
+    [
+      { provider: 'glm-coding', model: 'glm-5.3', from: undefined, to: 1_000_000 },
+      { provider: 'glm-coding', model: 'glm-5.3-flash', from: 262_144, to: 1_000_000 },
+    ],
+  )
   assert.deepEqual(plan.patch.providers['glm-coding'].models, [
     { id: 'glm-5.3', name: 'GLM', maxTokens: 123, contextWindow: 1_000_000 },
     { id: 'glm-5.3-flash', input: ['text'], contextWindow: 1_000_000 },
@@ -50,16 +53,19 @@ test('corrects the configured GLM routes and preserves every other field', () =>
 })
 
 test('returns no patch when configured capacities already match', () => {
-  const plan = planPiAiContextUpdate({
-    providers: {
-      'glm-coding': {
-        models: [
-          { id: 'glm-5.3', contextWindow: 1_000_000 },
-          { id: 'glm-5.3-flash', contextWindow: 1_000_000 },
-        ],
+  const plan = planPiAiContextUpdate(
+    {
+      providers: {
+        'glm-coding': {
+          models: [
+            { id: 'glm-5.3', contextWindow: 1_000_000 },
+            { id: 'glm-5.3-flash', contextWindow: 1_000_000 },
+          ],
+        },
       },
     },
-  }, catalog)
+    catalog,
+  )
   assert.equal(plan.patch, null)
   assert.deepEqual(plan.corrections, [])
 })
@@ -82,7 +88,10 @@ test('round-trips the settings catalog and omits disabled entries', () => {
     enabled: true,
   }
   const active = activeCatalogFromSettings(entries)
-  assert.equal(active.some((item) => item.provider === 'glm-coding' && item.model === 'glm-5.3'), false)
+  assert.equal(
+    active.some((item) => item.provider === 'glm-coding' && item.model === 'glm-5.3'),
+    false,
+  )
   assert.equal(active.find((item) => item.provider === 'custom').contextWindow, 42_000)
 })
 

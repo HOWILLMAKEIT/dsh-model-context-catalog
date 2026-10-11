@@ -23,7 +23,15 @@ test('package-lock resolves only from the official npm registry', async () => {
 
 test('package files boundary and export targets stay stable', async () => {
   const pkg = await readJson('package.json')
-  assert.deepEqual(pkg.files, ['lib', 'assets', 'cordis.patch.yml', 'README.md', 'ROOT_CAUSE.md', 'CONTRIBUTING.md', 'LICENSE'])
+  assert.deepEqual(pkg.files, [
+    'lib',
+    'assets',
+    'cordis.patch.yml',
+    'README.md',
+    'CONTRIBUTING.md',
+    'LICENSE',
+    'THIRD_PARTY_NOTICES.md',
+  ])
   assert.deepEqual(pkg.exports, {
     '.': './lib/index.js',
     './catalog': './lib/catalog.js',
@@ -36,10 +44,34 @@ test('package files boundary and export targets stay stable', async () => {
   }
 })
 
+test('bundled host and capacity modules preserve their source exports and route patch behavior', async () => {
+  for (const [built, source] of [
+    ['index', 'host/index'],
+    ['catalog', 'domain/catalog'],
+    ['discovery', 'discovery/index'],
+    ['model-capacities', 'data/model-capacities'],
+  ]) {
+    const [output, input] = await Promise.all([import(`../lib/${built}.js`), import(`../src/${source}.js`)])
+    assert.deepEqual(Object.keys(output).sort(), Object.keys(input).sort(), `${built} export contract changed`)
+    if (built === 'catalog') {
+      const section = { providers: { gateway: { models: [{ id: 'alias', contextWindow: 32000, apiKey: 'keep' }] } } }
+      const entries = [{ provider: 'gateway', model: 'alias', contextWindow: 64000 }]
+      assert.deepEqual(output.planPiAiContextUpdate(section, entries), input.planPiAiContextUpdate(section, entries))
+    }
+    if (built === 'model-capacities') assert.deepEqual(output.CAPACITY_CATALOG_INFO, input.CAPACITY_CATALOG_INFO)
+  }
+})
+
 test('built lib/client.js registers as the DSH client module with its contract', async () => {
   let registration
   const previousWindow = globalThis.window
-  globalThis.window = { __ModuleLoader__: { load: (value) => { registration = value } } }
+  globalThis.window = {
+    __ModuleLoader__: {
+      load: (value) => {
+        registration = value
+      },
+    },
+  }
   try {
     const built = new URL('../lib/client.js?test=package', import.meta.url)
     await import(built.href)
@@ -49,7 +81,7 @@ test('built lib/client.js registers as the DSH client module with its contract',
       return { createElement: () => null }
     })
     assert.equal(typeof plugin.apply, 'function')
-    assert.deepEqual(plugin.inject, ['slots', 'locale', 'configForms'])
+    assert.deepEqual(plugin.inject, ['slots', 'locale', 'configForms', 'remote', 'remote.llm'])
     assert.equal(typeof plugin.configuredModels, 'function')
     assert.equal(typeof plugin.groupModelsByProvider, 'function')
     assert.equal(typeof plugin.filterOptions, 'function')

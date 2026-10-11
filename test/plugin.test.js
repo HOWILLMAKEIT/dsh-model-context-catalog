@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { apply, Config } from '../index.js'
-import { catalogSettingsEntries } from '../catalog.js'
+import { apply, Config } from '../src/host/index.js'
+import { catalogSettingsEntries } from '../src/domain/catalog.js'
 
-const flush = async () => { await new Promise((resolve) => setImmediate(resolve)) }
-function fixture({ entries = catalogSettingsEntries([{ provider: 'glm-coding', model: 'glm-5.3', contextWindow: 1000000 }]), section = { providers: { 'glm-coding': { models: [{ id: 'glm-5.3' }] } } } } = {}) {
+const flush = async () => {
+  await new Promise((resolve) => setImmediate(resolve))
+}
+function fixture({
+  entries = catalogSettingsEntries([{ provider: 'glm-coding', model: 'glm-5.3', contextWindow: 1000000 }]),
+  section = { providers: { 'glm-coding': { models: [{ id: 'glm-5.3' }] } } },
+} = {}) {
   const listeners = new Map()
   const updates = []
   const logs = []
@@ -12,18 +17,28 @@ function fixture({ entries = catalogSettingsEntries([{ provider: 'glm-coding', m
   const state = { revision: 0, section, entries }
   const ctx = {
     settings: {
-      configure: (options) => { assert.deepEqual(options, { auto: false }); return () => {} },
-      describe: () => state.section === undefined ? [] : [{ ns: 'llm-pi-ai', revision: state.revision, value: state.section }],
+      configure: (options) => {
+        assert.deepEqual(options, { auto: false })
+        return () => {}
+      },
+      describe: () =>
+        state.section === undefined ? [] : [{ ns: 'llm-pi-ai', revision: state.revision, value: state.section }],
       mutate: async (ns, ops, revision) => {
         assert.equal(revision, state.revision)
         updates.push({ ns, ops, revision })
-        for (const { path, value } of ops) state.section.providers[path[1]].models[Number(path[3])].contextWindow = value
+        for (const { path, value } of ops)
+          state.section.providers[path[1]].models[Number(path[3])].contextWindow = value
         state.revision += 1
         listeners.get('settings/document-updated')?.(ns)
       },
     },
-    effect: (effect) => { effects.push(effect()) },
-    on: (event, listener) => { listeners.set(event, listener); return () => listeners.delete(event) },
+    effect: (effect) => {
+      effects.push(effect())
+    },
+    on: (event, listener) => {
+      listeners.set(event, listener)
+      return () => listeners.delete(event)
+    },
     logger: { info: (s) => logs.push(s), warn: (s) => logs.push(s) },
   }
   return { ctx, state, updates, logs, listeners, effects, config: { entries: { get: () => state.entries } } }
@@ -32,7 +47,9 @@ function fixture({ entries = catalogSettingsEntries([{ provider: 'glm-coding', m
 test('DSH 0.2 Config declares a volatile entries form and keeps enabled defaults', () => {
   assert.equal(Config.dict.entries.meta.volatile, true)
   assert.deepEqual(Config({}).entries.get(), {})
-  const resolved = Config({ entries: { 'custom::model': { provider: 'custom', model: 'model', contextWindow: 64000 } } })
+  const resolved = Config({
+    entries: { 'custom::model': { provider: 'custom', model: 'model', contextWindow: 64000 } },
+  })
   assert.equal(resolved.entries.get()['custom::model'].enabled, true)
 })
 
@@ -40,7 +57,10 @@ test('retains existing saved routes and their disabled state without adding defa
   const entries = { 'custom::alias': { provider: 'custom', model: 'alias', contextWindow: 64000, enabled: false } }
   const resolved = Config({ entries })
   assert.deepEqual(resolved.entries.get(), entries)
-  const f = fixture({ entries: resolved.entries.get(), section: { providers: { custom: { models: [{ id: 'alias', contextWindow: 32000 }] } } } })
+  const f = fixture({
+    entries: resolved.entries.get(),
+    section: { providers: { custom: { models: [{ id: 'alias', contextWindow: 32000 }] } } },
+  })
   apply(f.ctx, f.config)
   await flush()
   assert.equal(f.updates.length, 0)
@@ -52,7 +72,9 @@ test('uses the DSH 0.2 descriptor and path mutation APIs; converges after its ev
   const dispose = apply(f.ctx, f.config)
   await flush()
   assert.equal(f.updates.length, 1)
-  assert.deepEqual(f.updates[0].ops, [{ op: 'set', path: ['providers', 'glm-coding', 'models', '0', 'contextWindow'], value: 1000000 }])
+  assert.deepEqual(f.updates[0].ops, [
+    { op: 'set', path: ['providers', 'glm-coding', 'models', '0', 'contextWindow'], value: 1000000 },
+  ])
   assert.equal(f.state.section.providers['glm-coding'].models[0].contextWindow, 1000000)
   dispose()
   assert.equal(f.listeners.size, 0)
@@ -79,8 +101,16 @@ test('retries revision conflict and re-resolves a reordered model array', async 
 })
 
 test('preserves gateway credentials, model aliases, output limits and unknown fields', async () => {
-  const row = { id: 'gpt-6-astra-cdx', maxTokens: 1234, headers: { Authorization: 'fixture-secret' }, extra: { marker: 7 } }
-  const f = fixture({ entries: { x: { provider: 'dmx', model: row.id, contextWindow: 64000 } }, section: { providers: { dmx: { models: [row], baseURL: 'https://gateway.invalid/v1', apiKeyEnv: 'TEST_KEY' } } } })
+  const row = {
+    id: 'gpt-6-astra-cdx',
+    maxTokens: 1234,
+    headers: { Authorization: 'fixture-secret' },
+    extra: { marker: 7 },
+  }
+  const f = fixture({
+    entries: { x: { provider: 'dmx', model: row.id, contextWindow: 64000 } },
+    section: { providers: { dmx: { models: [row], baseURL: 'https://gateway.invalid/v1', apiKeyEnv: 'TEST_KEY' } } },
+  })
   apply(f.ctx, f.config)
   await flush()
   assert.equal(row.contextWindow, 64000)
@@ -121,12 +151,17 @@ test('does not write unavailable namespaces, unreadable catalog data, or dispose
 test('bounds repeated CAS conflicts and logs a non-conflict failure', async () => {
   const f = fixture()
   let attempts = 0
-  f.ctx.settings.mutate = async () => { attempts += 1; throw Object.assign(new Error('conflict'), { code: 'SETTINGS_CONFLICT' }) }
+  f.ctx.settings.mutate = async () => {
+    attempts += 1
+    throw Object.assign(new Error('conflict'), { code: 'SETTINGS_CONFLICT' })
+  }
   apply(f.ctx, f.config)
   await flush()
   assert.equal(attempts, 3)
   assert.match(f.logs.at(-1), /settings kept changing/)
-  f.ctx.settings.mutate = async () => { throw new Error('write failed') }
+  f.ctx.settings.mutate = async () => {
+    throw new Error('write failed')
+  }
   f.listeners.get('loader/volatile-update')()
   await flush()
   assert.match(f.logs.at(-1), /write failed/)

@@ -1,32 +1,5 @@
-import z from '@deepseek-ai/schemastery'
-import {
-  MODEL_CONTEXT_CATALOG,
-  activeCatalogFromSettings,
-  catalogSettingsEntries,
-  planPiAiContextUpdate,
-} from './catalog.js'
-
-export const name = 'model-context-catalog'
-export const inject = ['settings']
-
-const SETTINGS_NAMESPACE = 'llm-pi-ai'
-export const CATALOG_SETTINGS_NAMESPACE = 'model-context-catalog'
-
-const CatalogEntrySchema = z.object({
-  provider: z.string().required(),
-  model: z.string().required(),
-  contextWindow: z.number().step(1).min(1).required(),
-  sourceUrl: z.string(),
-  note: z.string(),
-  enabled: z.boolean().default(true),
-})
-
-// DSH 0.2 projects a plugin's volatile Config fields into Settings forms.
-// Existing model-context-catalog entries remain under the same Loader id.
-export const Config = z.object({
-  entries: z.dict(CatalogEntrySchema).default(catalogSettingsEntries()).volatile(),
-})
-export const CatalogSettingsSchema = Config
+import { activeCatalogFromSettings, planPiAiContextUpdate } from '../domain/catalog.js'
+import { MODEL_SETTINGS_NAMESPACE as SETTINGS_NAMESPACE, CATALOG_SETTINGS_NAMESPACE } from '../shared/contracts.js'
 
 const correctionText = (item) => `${item.provider}/${item.model}: ${String(item.from ?? 'unknown')} -> ${item.to}`
 
@@ -34,7 +7,7 @@ const correctionText = (item) => `${item.provider}/${item.model}: ${String(item.
  * Maintain capacities for explicitly listed custom model routes. Read the
  * Settings descriptor and mutate only contextWindow paths with revision CAS.
  */
-export function apply(ctx, config) {
+export function synchronizeContexts(ctx, config) {
   let disposed = false
   let queue = Promise.resolve()
   ctx.effect(() => ctx.settings.configure({ auto: false }))
@@ -67,13 +40,16 @@ export function apply(ctx, config) {
       }
       return
     }
-    if (!disposed) ctx.logger.warn('model-context-catalog: settings kept changing; deferred reconciliation to the next update')
+    if (!disposed)
+      ctx.logger.warn('model-context-catalog: settings kept changing; deferred reconciliation to the next update')
   }
 
   const schedule = () => {
     const enqueue = () => {
       queue = queue.then(reconcile, reconcile).catch((error) => {
-        ctx.logger.warn(`model-context-catalog: reconciliation failed: ${error instanceof Error ? error.message : String(error)}`)
+        ctx.logger.warn(
+          `model-context-catalog: reconciliation failed: ${error instanceof Error ? error.message : String(error)}`,
+        )
       })
     }
     // DSH 0.2 HMR uses AsyncLocalStorage to reject nested profile edits.
@@ -105,5 +81,3 @@ export function apply(ctx, config) {
   ctx.effect(() => dispose)
   return dispose
 }
-
-export { MODEL_CONTEXT_CATALOG, planPiAiContextUpdate } from './catalog.js'

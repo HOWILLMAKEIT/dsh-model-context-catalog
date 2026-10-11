@@ -1,7 +1,7 @@
 {
   "name": "dsh-model-context-catalog",
-  "version": "0.3.0",
-  "description": "Maintain deployment-specific context windows for custom DeepSeek Harness model routes.",
+  "version": "0.4.0",
+  "description": "One-click context window matching and selective bulk configuration for DeepSeek Harness models, with source references and manual management.",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -15,17 +15,19 @@
     "assets",
     "cordis.patch.yml",
     "README.md",
-    "ROOT_CAUSE.md",
     "CONTRIBUTING.md",
-    "LICENSE"
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
     "lint": "node scripts/lint.mjs",
     "verify:bundle": "node scripts/verify-bundle.mjs",
-    "check": "npm run build && npm run verify:bundle && npm run lint",
+    "check": "npm run build && npm run verify:bundle && npm run lint && npm run format:check",
     "test": "npm run build && node --test test/*.test.js",
-    "prepack": "npm run check && npm test"
+    "prepack": "npm run check && npm test",
+    "format": "prettier --write src scripts test",
+    "format:check": "prettier --check src scripts test"
   },
   "dsh": {
     "bundle": {
@@ -35,7 +37,8 @@
       "inject": [
         "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-ui-settings",
-        "@deepseek-ai/dsh-client-ui-slots"
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-api-remotes"
       ],
       "platform": "web"
     }
@@ -43,11 +46,11 @@
   "dshhub": {
     "schemaVersion": 1,
     "displayName": "Model Context Catalog",
-    "summary": "为自定义模型与中转站路由集中维护上下文窗口，并同步到 DSH 模型配置。",
+    "summary": "一键匹配已配置模型的上下文窗口，展示容量来源；支持勾选批量配置、已有窗口管理和手动编辑。",
     "categories": [
-      "模型",
+      "\u6a21\u578b",
       "Web UI",
-      "配置"
+      "\u914d\u7f6e"
     ],
     "surfaces": [
       "host",
@@ -74,6 +77,7 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.4",
+    "@deepseek-ai/dsh-api-remotes": "~0.2.0-rc.2",
     "@deepseek-ai/dsh-client-locale": "~0.2.0-rc.2",
     "@deepseek-ai/dsh-client-ui-settings": "~0.2.0-rc.2",
     "@deepseek-ai/dsh-client-ui-slots": "~0.2.0-rc.2",
@@ -95,6 +99,8 @@
   "license": "MIT",
   "devDependencies": {
     "@deepseek-ai/cosmokit": "1.8.5",
+    "esbuild": "0.28.2",
+    "prettier": "3.9.10",
     "react-test-renderer": "^18.3.1"
   }
 }

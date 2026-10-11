@@ -1,4 +1,4 @@
-# 持续集成：node 22/24 矩阵（对标 reports/dsh-plugin-benchmark.md §9 P0）。
+# 持续集成：Node.js 22/24 兼容性检查。
 # 发布门槛之外的常规门禁；发布流水线见 release.yml。
 name: CI
 
@@ -35,8 +35,7 @@ jobs:
       - run: npm test
 
   plugin-checker:
-    # 对标报告 §9 P0：接入 dsh-plugin-checker 做 manifest → 安装 → dump-config 三级校验。
-    # 首轮 CI 已完整跑通，现作为硬门禁执行。
+    # 通过 dsh-plugin-checker 校验 manifest、插件安装与 dump-config。
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 15

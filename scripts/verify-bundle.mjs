@@ -2,31 +2,43 @@
  * Bundle smoke gate: proves the published surface is coherent without any
  * heavyweight tooling.
  *
- * 1. lib/ is byte-identical to the banner + source pair build.mjs produces.
+ * 1. lib/ is byte-identical to the module bundles build.mjs produces.
  * 2. The built lib/client.js still registers as a DSH client module and keeps
  *    its factory export contract.
  * 3. `npm pack --dry-run` ships exactly the declared file set (stable package
  *    boundary). --ignore-scripts keeps this safe to run from `npm run check`.
  *
- * Zero dependencies; Node >= 22.
+ * Uses the same esbuild options as the build; Node >= 22.
  */
 import { execFileSync } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import assert from 'node:assert/strict'
+import { BUILD_SOURCES, buildOutput } from './build-source.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const sources = ['index.js', 'catalog.js', 'client.js']
-const BANNER = (file) => `// Generated from ${file}; run npm run build after editing source.\n`
+const sources = BUILD_SOURCES
 
 // 1. lib/ matches build.mjs output byte for byte.
 for (const file of sources) {
-  const [source, built] = await Promise.all([
-    readFile(path.join(root, file), 'utf8'),
+  const [output, built] = await Promise.all([
+    buildOutput(new URL('../', import.meta.url), file),
     readFile(path.join(root, 'lib', file), 'utf8'),
   ])
-  assert.equal(built, `${BANNER(file)}${source}`, `lib/${file} is stale; run npm run build`)
+  assert.equal(built, output.code, `lib/${file} is stale; run npm run build`)
+  if (file === 'client.js') {
+    assert.ok(
+      Object.keys(output.metadata.inputs).every(
+        (input) => !input.startsWith('src/host/') && !input.includes('node_modules/'),
+      ),
+      'browser bundle must not include host code or a second React runtime',
+    )
+    assert.ok(
+      Object.values(output.metadata.outputs).every((item) => item.imports.length === 0),
+      'DSH browser entry must be self-contained; React comes from the module loader',
+    )
+  }
 }
 console.log(`verify-bundle: lib/ in sync with ${sources.length} sources`)
 
@@ -34,7 +46,13 @@ console.log(`verify-bundle: lib/ in sync with ${sources.length} sources`)
 {
   let registration
   const previousWindow = globalThis.window
-  globalThis.window = { __ModuleLoader__: { load: (value) => { registration = value } } }
+  globalThis.window = {
+    __ModuleLoader__: {
+      load: (value) => {
+        registration = value
+      },
+    },
+  }
   try {
     const clientUrl = new URL(`../lib/client.js?smoke=${Date.now()}`, import.meta.url)
     await import(clientUrl.href)
@@ -43,7 +61,7 @@ console.log(`verify-bundle: lib/ in sync with ${sources.length} sources`)
       assert.equal(id, 'react')
       return { createElement: () => null }
     })
-    assert.deepEqual(plugin.inject, ['slots', 'locale', 'configForms'])
+    assert.deepEqual(plugin.inject, ['slots', 'locale', 'configForms', 'remote', 'remote.llm'])
     for (const key of ['apply', 'configuredModels', 'groupModelsByProvider', 'filterOptions']) {
       assert.equal(typeof plugin[key], 'function', `lib/client.js factory export "${key}" missing`)
     }
@@ -60,14 +78,15 @@ const expectedFiles = [
   'LICENSE',
   'README.md',
   'CONTRIBUTING.md',
-  'ROOT_CAUSE.md',
+  'THIRD_PARTY_NOTICES.md',
   'cordis.patch.yml',
   'lib/catalog.js',
   'lib/client.js',
   'lib/index.js',
+  'lib/discovery.js',
+  'lib/model-capacities.js',
   'assets/settings.png',
-  'assets/workflow.jpg',
-  'assets/workflow.html',
+  'assets/image1.png',
 ].sort()
 const stdout = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts', '--loglevel=error'], {
   cwd: root,

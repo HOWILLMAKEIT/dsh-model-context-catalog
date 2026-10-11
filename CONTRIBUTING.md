@@ -15,25 +15,46 @@ npm test
 npm pack --dry-run
 ```
 
-`npm run check` 会重新生成 `lib/`、验证构建产物和包边界，并运行轻量静态检查。
+`npm run check` 会重新生成 `lib/`、验证构建产物和包边界，并递归检查源码语法及格式。`npm run format` 可统一代码格式。
 提交前必须保证全部命令通过。
 
 ## 代码结构
 
-- `index.js`：Host 插件、volatile Config 表单和同步控制器
-- `catalog.js`：目录数据与 `llm-pi-ai` 最小补丁规划
-- `client.js`：Web 设置页面
-- `lib/`：由 `npm run build` 生成的发布产物
-- `test/`：目录、Host、UI 和包契约测试
-- `scripts/`：构建、lint 和 bundle 验证脚本
+| 目录 | 职责 |
+| --- | --- |
+| `src/host/` | DSH 插件入口、Config 表单和上下文同步；revision 冲突在同步器内处理 |
+| `src/domain/` | 管理条目、容量校验和最小配置补丁规划，不依赖界面或 DSH 运行时 |
+| `src/discovery/` | provider 别名、模型名称匹配、候选筛选、确认前核对及内置目录读取 |
+| `src/data/` | models.dev 数据规范化与容量参考快照 |
+| `src/client/components/` | 模型选择器、批量预览和设置页渲染 |
+| `src/client/controller.js` | 页面状态、手动保存、全选后的批量确认与失败提示 |
+| `src/client/models.js`、`settings.js` | 模型展示数据和条目 mutation 规划 |
+| `src/client/styles.css`、`styles.js`、`locales.js` | 样式安装和中英文文案 |
+| `src/shared/` | 路由键、容量校验和 DSH 服务名称 |
+| `scripts/` | 构建、递归 lint、资料更新及发布包检查 |
+| `test/` | 业务、Host、UI 和包契约回归测试 |
+| `lib/` | 由 esbuild 生成的发布产物，DSH 实际加载此目录 |
 
-请修改根目录源文件，不要直接编辑 `lib/`。
+```mermaid
+flowchart LR
+    Data[容量参考资料] --> Discovery[模型与 provider 匹配]
+    Discovery --> Controller[页面状态与配置操作]
+    Components[界面组件] <--> Controller
+    Controller --> Settings[DSH Settings]
+    Settings --> Host[Host 同步器]
+    Host --> Domain[最小补丁规划]
+    Domain --> Settings
+```
+
+请修改 `src/`，不要直接编辑 `lib/`。provider 别名集中维护在 `src/discovery/providers.js`；容量资料通过更新脚本生成，不手改快照。
+
+构建入口映射维护在 `scripts/build-source.mjs`。esbuild 按模块依赖打包，浏览器产物不包含 Host 代码或第二份 React；React 仍由 DSH 的模块加载器提供。公开的 `lib/index.js`、`lib/catalog.js` 和 `lib/client.js` 入口保持稳定。
 
 ## 贡献规则
 
 ### 路由与容量
 
-- 新安装的容量目录必须为空，不向用户提供默认路由或窗口；保留已有条目和启停状态。
+- 新安装的管理目录必须为空；参考快照只能生成候选，用户勾选确认前不得写入。保留已有条目和启停状态。
 - 设置页以启用开关控制管理，仅在同步或写入异常时提示；编辑内容不能改变启停状态。
 - 使用精确的 `(provider, model)` 路由，不把不同网关视为同一部署。
 - `contextWindow` 必须是正安全整数，并有服务商文档或实际部署证据。
@@ -44,6 +65,20 @@ npm pack --dry-run
 - 同步只能修改已存在的显式 `models[]` 行，不合成内置目录或 `modelOverrides`。
 - DSH 0.2 使用导出的 volatile `Config` 和 `settings.describe/mutate`；不得重新使用旧 `settings.register/get`。
 - 客户端表单通过 `configForms.get` 共享，插件不能自行 dispose 共享表单。
+
+### 自动补全
+
+- 只扫描显式配置的模型，不添加未配置路由，不重新启用已有停用条目。
+- DSH provider-only discovery 核对内置窗口时不传 API 地址或凭据，禁止回退为自动请求中转站端点。
+- 大小写和日期后缀可匹配；主要版本、flash/mini/thinking 等语义差异不得丢弃。
+- provider 标识或展示名称命中时使用对应服务商记录，否则只使用 models.dev 的独立模型目录默认值，不合并不相关服务商的容量。
+- 必须区分模型厂家和服务商，容量选项与保存的来源必须对应；单一容量直接展示，多个选项注明来源。
+- 已有不同值必须用户确认；模型默认值仅是自定义部署的参考。
+- 已配置窗口、DSH 内置窗口和服务商默认窗口也可纳入管理，默认保留当前值，不自动勾选；无公开参考资料时仍可使用已有容量，不伪造来源链接。
+- 只排除已经存在的管理条目，包括停用条目；删除条目后，保留窗口的路由必须能够重新添加。
+- 自动补全只使用完整上下文窗口字段；不提供输入上限或输出上限选项。
+- 批量确认前重新核对路由与条目，CAS 失败不得报告成功。
+- 通过 `node scripts/update-model-capacities.mjs` 更新快照，再构建和测试；记录来源、时间和 SHA-256。
 
 ### 模型选择器
 
@@ -68,7 +103,6 @@ npm pack --dry-run
 ## 文档分工
 
 - `README.md`：解决的问题、安装和使用方法
-- `ROOT_CAUSE.md`：会话证据、代码路径和根因分析
 - `CONTRIBUTING.md`：开发流程与维护约束
 - `CHANGELOG.md`：版本变化和 Release Notes
 

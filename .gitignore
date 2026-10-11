@@ -1,4 +1,41 @@
+# 仅忽略本地依赖、运行数据和临时产物。
+# .gitignore 不会隐藏已跟踪文件的改动，也不会自动清空 Git 暂存区。
+
+# 本地依赖和 npm 打包归档
 node_modules/
 *.tgz
-.DS_Store
+
+# 上游源码检查目录、测试截图和排查报告（可能包含本地配置副本）
+/upstream-analysis/
+/reports/
+
+# 运行数据、缓存、日志和临时文件
+/.dsh/
+/.npm/
+.cache/
+/tmp/
+/temp/
 coverage/
+.nyc_output/
+*.log
+
+# 本地环境变量；保留不含真实凭据的示例模板
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# 操作系统元数据和编辑器临时文件
+.DS_Store
+._*
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# 以下内容按当前仓库约定纳入版本管理，不要作为临时文件忽略：
+# - lib/：DSH 实际加载的构建文件，与源码一起更新。
+# - src/data/model-capacities.js：随插件发布的容量资料快照；lib/client.js 会内嵌该资料。
+# - assets/：README 使用的功能演示和设置截图。
+# - .github/badges/：下载量徽章数据。
+# - 源码、测试、构建脚本、文档以及 package.json / package-lock.json。
