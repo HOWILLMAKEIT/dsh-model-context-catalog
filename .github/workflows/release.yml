@@ -123,7 +123,6 @@ jobs:
               "lib/catalog.js",
               "lib/client.js",
               "lib/discovery.js",
-              "lib/model-capacities.js",
             ];
             const missing = required.filter((f) => !files.includes(f));
             if (missing.length > 0) {

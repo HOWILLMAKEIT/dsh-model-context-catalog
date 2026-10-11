@@ -28,7 +28,7 @@
 | --- | --- |
 | **一键匹配模型上下文** | 扫描 DSH 已配置模型，自动查找上下文窗口及容量来源 |
 | **勾选后批量配置** | 逐项勾选或全选，确认后一次添加所选模型并启用管理 |
-| 主流编程模型容量资料 | 内置 models.dev 的上下文窗口资料，涵盖 GPT、Claude、Gemini、DeepSeek、GLM、Qwen Coder、Kimi、MiniMax 等系列；设置页显示资料更新日期 |
+| 自动获取容量资料 | 点击一键匹配时自动获取 models.dev 资料，涵盖 GPT、Claude、Gemini、DeepSeek、GLM、Qwen Coder、Kimi、MiniMax 等系列；缓存 24 小时，过期自动更新 |
 | 服务商容量匹配 | 优先使用对应服务商的容量；未命中时使用模型目录默认值，并展示来源链接 |
 | 模型名称与别名匹配 | 支持 `k3`、`m3` 等短名称、`astra-gpt` 等乱序名称，以及大小写、分隔符、服务商前缀和日期后缀 |
 | 管理已有窗口 | 已填写窗口或使用 DSH 内置窗口的模型也能添加，默认保留当前容量 |
@@ -40,7 +40,8 @@
 
 ```mermaid
 flowchart LR
-    A["DSH 已配置模型"] --> B["一键匹配容量与来源"]
+    A["点击一键匹配"] --> R["获取 models.dev 资料，24 小时内复用缓存"]
+    R --> B["匹配 DSH 已配置模型的容量与来源"]
     B --> C["保留已有窗口或选择参考容量"]
     C --> D["勾选模型并确认"]
     D --> E["批量配置并持续同步"]
@@ -102,7 +103,11 @@ dsh plugin --profile web add dsh-model-context-catalog
 
 ## 匹配与容量来源
 
-容量资料来自 [models.dev](https://models.dev/) 的模型目录与服务商目录。页面区分 **模型厂家**（模型开发者）和 **服务商 provider**（提供调用服务的一方），并给出对应的资料页面链接。
+容量资料来自 [models.dev](https://models.dev/) 的模型目录与服务商目录，通过其 [官方接口](https://github.com/anomalyco/models.dev#api) 在线获取，不再随插件内置固定资料。页面区分 **模型厂家**（模型开发者）和 **服务商 provider**（提供调用服务的一方），并给出对应的资料页面链接。
+
+**每次点击“一键匹配”都会自动检查资料：首次使用或缓存超过 24 小时，获取最新数据；24 小时内复用缓存。** 下载与缓存全部由插件内部完成，无需运行脚本，也没有额外更新按钮。缓存保存在当前浏览器本地，刷新页面后仍可复用；清理浏览器数据后会重新获取。
+
+获取失败时，有上次成功的资料就继续使用，并显示“更新失败，使用上次资料”；没有缓存时会提示重试，手动添加仍可使用。预览显示实际资料的获取日期、模型数量和缓存状态，失败不会把旧资料标成最新。
 
 | 匹配对象 | 规则 |
 | --- | --- |
@@ -112,7 +117,7 @@ dsh plugin --profile web add dsh-model-context-catalog
 
 例如，`GLM-5.3` 与 `glm_5_3` 可以匹配，`glm-5.3-20260814` 可作为日期后缀候选。匹配会保留模型主要版本及 `flash`、`mini`、`thinking` 等型号区别，原始 provider / model ID 保持不变。
 
-**名称不必写全，也不必按固定顺序排列。** 以下是当前内置资料支持的例子：
+**名称不必写全，也不必按固定顺序排列。** 以下是容量目录支持的匹配例子，实际候选以本次获取的资料为准：
 
 | 配置中的名称 | 匹配到的模型 | 识别方式 |
 | --- | --- | --- |
@@ -122,7 +127,7 @@ dsh plugin --profile web add dsh-model-context-catalog
 | `gpt-6-astra-cdx` | GPT Astra | 提取模型信息，忽略额外的 `cdx` 路由标签 |
 | `dmx/astra-gpt` | GPT Astra | 去除路由前缀，再识别模型信息 |
 
-模型别名由导入脚本从 models.dev 的服务商记录自动整理。例如，当前资料中 Kimi Coding Plan 使用 `k3` 作为模型 ID，对应 Kimi K3，因此可直接识别。
+模型别名在获取资料后从 models.dev 的服务商记录自动整理。例如，Kimi Coding Plan 使用 `k3` 作为模型 ID，对应 Kimi K3，因此可直接识别。
 
 根据模型信息推测的候选标为“模型信息匹配，待确认”，不会默认勾选。短名称或缺少版本的名称只有能确定唯一型号时才提供候选；仅有 `gpt` 等系列名称不会猜测型号。已有窗口默认保留。
 
@@ -130,7 +135,7 @@ dsh plugin --profile web add dsh-model-context-catalog
 
 **中转站、套餐和独立部署可能有不同容量，选择时以实际部署支持的窗口为准。** 使用“保留当前窗口”选项时，按当前配置记录容量，不附上公开资料链接。
 
-匹配在本地完成，使用随插件发布的容量资料，不上传模型配置或凭据。资料更新不会自动替换已保存的条目。
+插件只下载公开容量资料，匹配在本地完成，不向 models.dev 上传模型配置或凭据。资料更新不会自动替换已保存的条目；只有勾选并确认添加后才会写入。批量确认使用预览时的资料，避免参考容量在确认期间变化。
 
 ## 开发
 
@@ -147,15 +152,15 @@ npm pack --dry-run
 dsh plugin --profile web add -w /absolute/path/to/dsh-model-context-catalog
 ```
 
-更新参考快照并重新构建：
+更新离线测试夹具（不随插件发布）：
 
 ```bash
-node scripts/update-model-capacities.mjs
+node scripts/update-test-catalog.mjs
 npm run check
 npm test
 ```
 
-快照记录来源 URL、获取时间和内容摘要。测试使用本地数据，覆盖匹配、容量冲突、勾选添加、并发配置变化、目录同步及字段保留。
+测试夹具记录来源 URL、获取时间和内容摘要。自动化测试不访问外部网络，覆盖按需获取、24 小时缓存、过期刷新、失败回退、匹配、勾选添加、并发配置变化、目录同步及字段保留。
 
 源码按职责放在 `src/host/`、`src/domain/`、`src/discovery/`、`src/data/` 和 `src/client/`；`lib/` 是构建产物。贡献规则见 [CONTRIBUTING.md](./CONTRIBUTING.md)，版本记录见 [CHANGELOG.md](./CHANGELOG.md)。问题可提交到 [GitHub Issues](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/issues)。
 

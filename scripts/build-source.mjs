@@ -7,7 +7,6 @@ export const BUILD_ENTRIES = {
   'catalog.js': 'src/domain/catalog.js',
   'client.js': 'src/client/index.js',
   'discovery.js': 'src/discovery/index.js',
-  'model-capacities.js': 'src/data/model-capacities.js',
 }
 export const BUILD_SOURCES = Object.keys(BUILD_ENTRIES)
 
@@ -28,7 +27,7 @@ export async function buildOutput(root, file) {
     charset: 'utf8',
     loader: { '.css': 'text' },
     // Compact generated data; retain names for diagnostics.
-    minifyWhitespace: client || file === 'model-capacities.js',
+    minifyWhitespace: client,
     lineLimit: 120,
     banner: { js: `// Generated from ${entry}; edit src/ and run npm run build.` },
     logLevel: 'silent',

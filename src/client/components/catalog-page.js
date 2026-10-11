@@ -4,11 +4,11 @@ import { createModelCombobox } from './model-combobox.js'
 import { createBatchPanel } from './batch-panel.js'
 import { readableSourceNote } from '../../domain/source-notes.js'
 
-export function createCatalogPage(React, capacityDiscovery) {
+export function createCatalogPage(React) {
   const h = React.createElement
   const ModelCombobox = createModelCombobox(React)
   const BatchPanel = createBatchPanel(React)
-  const useCatalogController = createCatalogController(React, capacityDiscovery)
+  const useCatalogController = createCatalogController(React)
   function field(label, value, onChange, props = {}) {
     const control = props.multiline
       ? h('textarea', {
@@ -169,6 +169,7 @@ export function createCatalogPage(React, capacityDiscovery) {
       batch
         ? h(BatchPanel, {
             rows: batch.rows,
+            references: batch.references,
             writable: snapshot.writable && piSnapshot.status === 'ready',
             saving,
             onSave: addSelected,

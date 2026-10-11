@@ -1,6 +1,6 @@
 {
   "name": "dsh-model-context-catalog",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "One-click context window matching and selective bulk configuration for DeepSeek Harness models, with source references and manual management.",
   "type": "module",
   "main": "./lib/index.js",
@@ -48,9 +48,9 @@
     "displayName": "Model Context Catalog",
     "summary": "一键匹配已配置模型的上下文窗口，展示容量来源；支持勾选批量配置、已有窗口管理和手动编辑。",
     "categories": [
-      "\u6a21\u578b",
+      "模型",
       "Web UI",
-      "\u914d\u7f6e"
+      "配置"
     ],
     "surfaces": [
       "host",
@@ -61,7 +61,9 @@
       "node": ">=22"
     },
     "permissions": {
-      "network": []
+      "network": [
+        "https://models.dev/catalog.json"
+      ]
     }
   },
   "keywords": [
@@ -100,6 +102,7 @@
   "devDependencies": {
     "@deepseek-ai/cosmokit": "1.8.5",
     "esbuild": "0.28.2",
+    "fake-indexeddb": "6.2.5",
     "prettier": "3.9.10",
     "react-test-renderer": "^18.3.1"
   }

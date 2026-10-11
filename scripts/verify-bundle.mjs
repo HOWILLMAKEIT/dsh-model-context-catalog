@@ -30,7 +30,7 @@ for (const file of sources) {
   if (file === 'client.js') {
     assert.ok(
       Object.keys(output.metadata.inputs).every(
-        (input) => !input.startsWith('src/host/') && !input.includes('node_modules/'),
+        (input) => !input.startsWith('src/host/') && !input.startsWith('test/') && !input.includes('node_modules/'),
       ),
       'browser bundle must not include host code or a second React runtime',
     )
@@ -84,7 +84,6 @@ const expectedFiles = [
   'lib/client.js',
   'lib/index.js',
   'lib/discovery.js',
-  'lib/model-capacities.js',
   'assets/settings.png',
   'assets/image.png',
 ].sort()

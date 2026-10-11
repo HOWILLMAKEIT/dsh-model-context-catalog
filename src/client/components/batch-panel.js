@@ -1,9 +1,8 @@
-import { CAPACITY_CATALOG_INFO } from '../../data/model-capacities.js'
 import { formatTokens } from '../models.js'
 
 export function createBatchPanel(React) {
   const h = React.createElement
-  function BatchPanel({ rows, writable, saving, onSave, onCancel, onManual, t }) {
+  function BatchPanel({ rows, references, writable, saving, onSave, onCancel, onManual, t }) {
     const [choices, setChoices] = React.useState(() =>
       Object.fromEntries(rows.map((row) => [row.key, row.recommended?.key ?? ''])),
     )
@@ -24,9 +23,11 @@ export function createBatchPanel(React) {
           'div',
           { className: 'mcc-count' },
           t('referenceSummary', {
-            count: CAPACITY_CATALOG_INFO.modelRecords,
-            date: CAPACITY_CATALOG_INFO.updatedAt.slice(0, 10),
+            count: references.info.modelRecords,
+            date: references.info.updatedAt.slice(0, 10),
           }),
+          ' · ',
+          t(`references_${references.status}`),
         ),
         h(
           'div',

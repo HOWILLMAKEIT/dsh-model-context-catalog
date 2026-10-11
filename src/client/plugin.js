@@ -1,5 +1,4 @@
-import { createCapacityDiscovery } from '../discovery/index.js'
-import { REFERENCE_MODEL_CAPACITIES } from '../data/model-capacities.js'
+import { createCatalogLoader } from '../data/catalog-loader.js'
 import {
   CATALOG_SETTINGS_NAMESPACE as SETTINGS_NS,
   MODEL_SETTINGS_NAMESPACE as PI_NS,
@@ -14,12 +13,12 @@ import { entryMutations } from './settings.js'
 export const inject = ['slots', 'locale', 'configForms', 'remote', 'remote.llm']
 
 export function createClientPlugin(React) {
-  const capacityDiscovery = createCapacityDiscovery(REFERENCE_MODEL_CAPACITIES)
-  const CatalogPage = createCatalogPage(React, capacityDiscovery)
+  const CatalogPage = createCatalogPage(React)
   function apply(ctx) {
     const t = ctx.locale.bind(LOCALE_NS)
     const catalogScope = ctx.configForms.get(SETTINGS_NS)
     const piScope = ctx.configForms.get(PI_NS)
+    const catalogLoader = createCatalogLoader()
     const remote = ctx.get?.('remote') ?? ctx.remote
     const discoverBuiltin = remote?.llm?.discoverModels
       ? (provider) => remote.llm.discoverModels(PI_NS, { provider })
@@ -33,7 +32,7 @@ export function createClientPlugin(React) {
           id: 'model-context-catalog',
           order: 11,
           label: () => t('nav'),
-          inject: () => ({ catalogScope, piScope, discoverBuiltin, t }),
+          inject: () => ({ catalogScope, piScope, discoverBuiltin, catalogLoader, t }),
         },
         CatalogPage,
       ),
@@ -48,7 +47,6 @@ export function createClientPlugin(React) {
     floatingMenuLayout,
     entryMutations,
     actualContext,
-    capacityDiscovery,
   }
   Object.defineProperty(plugin, Symbol.toStringTag, { value: 'Module' })
   return plugin

@@ -35,7 +35,7 @@ Thumbs.db
 
 # 以下内容按当前仓库约定纳入版本管理，不要作为临时文件忽略：
 # - lib/：DSH 实际加载的构建文件，与源码一起更新。
-# - src/data/model-capacities.js：随插件发布的容量资料快照；lib/client.js 会内嵌该资料。
+# - test/fixtures/：离线测试资料，仅用于测试，不随插件发布。
 # - assets/：README 使用的功能演示和设置截图。
 # - .github/badges/：下载量徽章数据。
 # - 源码、测试、构建脚本、文档以及 package.json / package-lock.json。

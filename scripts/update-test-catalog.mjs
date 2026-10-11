@@ -26,10 +26,10 @@ const info = {
   sources: downloaded.map(({ data, ...metadata }) => metadata),
 }
 const output =
-  '// Generated reference evidence, not deployed route configuration.\n' +
+  '// Generated offline test fixture; not bundled with the plugin.\n' +
   `export const CAPACITY_CATALOG_INFO = ${JSON.stringify(info, null, 2)}\n` +
   'export const REFERENCE_MODEL_CAPACITIES = [\n' +
   records.map((record) => `  ${JSON.stringify(record)}`).join(',\n') +
   '\n]\n'
-await writeFile(new URL('../src/data/model-capacities.js', import.meta.url), output)
+await writeFile(new URL('../test/fixtures/model-capacities.js', import.meta.url), output)
 console.log(`Saved ${records.length} capacity records from ${sources.map((source) => source.name).join(' and ')}`)

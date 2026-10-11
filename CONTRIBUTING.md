@@ -25,14 +25,14 @@ npm pack --dry-run
 | `src/host/` | DSH 插件入口、Config 表单和上下文同步；revision 冲突在同步器内处理 |
 | `src/domain/` | 管理条目、容量校验和最小配置补丁规划，不依赖界面或 DSH 运行时 |
 | `src/discovery/` | provider 别名、模型名称匹配、候选筛选、确认前核对及内置目录读取 |
-| `src/data/` | models.dev 数据规范化与容量参考快照 |
+| `src/data/` | models.dev 下载、校验、规范化与 24 小时缓存；浏览器 IndexedDB 只保存公开资料 |
 | `src/client/components/` | 模型选择器、批量预览和设置页渲染 |
 | `src/client/controller.js` | 页面状态、手动保存、全选后的批量确认与失败提示 |
 | `src/client/models.js`、`settings.js` | 模型展示数据和条目 mutation 规划 |
 | `src/client/styles.css`、`styles.js`、`locales.js` | 样式安装和中英文文案 |
 | `src/shared/` | 路由键、容量校验和 DSH 服务名称 |
-| `scripts/` | 构建、递归 lint、资料更新及发布包检查 |
-| `test/` | 业务、Host、UI 和包契约回归测试 |
+| `scripts/` | 构建、递归 lint、测试夹具更新及发布包检查 |
+| `test/` | 业务、Host、UI、缓存和包契约回归测试；`fixtures/` 为不随包发布的离线资料 |
 | `lib/` | 由 esbuild 生成的发布产物，DSH 实际加载此目录 |
 
 ```mermaid
@@ -46,7 +46,7 @@ flowchart LR
     Domain --> Settings
 ```
 
-请修改 `src/`，不要直接编辑 `lib/`。provider 别名集中维护在 `src/discovery/providers.js`；容量资料通过更新脚本生成，不手改快照。
+请修改 `src/`，不要直接编辑 `lib/`。provider 别名集中维护在 `src/discovery/providers.js`；运行时容量资料按需获取，离线测试夹具通过更新脚本生成，不手改夹具。
 
 构建入口映射维护在 `scripts/build-source.mjs`。esbuild 按模块依赖打包，浏览器产物不包含 Host 代码或第二份 React；React 仍由 DSH 的模块加载器提供。公开的 `lib/index.js`、`lib/catalog.js` 和 `lib/client.js` 入口保持稳定。
 
@@ -54,7 +54,7 @@ flowchart LR
 
 ### 路由与容量
 
-- 新安装的管理目录必须为空；参考快照只能生成候选，用户勾选确认前不得写入。保留已有条目和启停状态。
+- 新安装的管理目录必须为空；参考资料只能生成候选，用户勾选确认前不得写入。保留已有条目和启停状态。
 - 设置页以启用开关控制管理，仅在同步或写入异常时提示；编辑内容不能改变启停状态。
 - 使用精确的 `(provider, model)` 路由，不把不同网关视为同一部署。
 - `contextWindow` 必须是正安全整数，并有服务商文档或实际部署证据。
@@ -79,7 +79,10 @@ flowchart LR
 - 只排除已经存在的管理条目，包括停用条目；删除条目后，保留窗口的路由必须能够重新添加。
 - 自动补全只使用完整上下文窗口字段；不提供输入上限或输出上限选项。
 - 批量确认前重新核对路由与条目，CAS 失败不得报告成功。
-- 通过 `node scripts/update-model-capacities.mjs` 更新快照，再构建和测试；记录来源、时间和 SHA-256。
+- 点击一键匹配后再获取公开资料；缓存有效期 24 小时，到期刷新。更新失败使用上次成功的资料并标明状态，不延长旧缓存时间；首次失败仍允许手动管理。
+- 缓存只保存公开规范化资料，不保存用户模型目录或凭据；资料请求不附带凭据、配置或当前页面 URL。浏览器存储不可用时使用内存缓存。
+- 批量确认必须使用预览时的资料，不能用之后下载的新容量替换用户选择。
+- 通过 `node scripts/update-test-catalog.mjs` 更新离线测试夹具，再构建和测试；夹具记录来源、时间和 SHA-256，不得进入发布包。
 
 ### 模型选择器
 

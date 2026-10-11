@@ -1,4 +1,4 @@
-// Generated reference evidence, not deployed route configuration.
+// Generated offline test fixture; not bundled with the plugin.
 export const CAPACITY_CATALOG_INFO = {
   "updatedAt": "2026-10-11T14:40:55.344Z",
   "records": 8656,

@@ -49,7 +49,6 @@ test('bundled host and capacity modules preserve their source exports and route 
     ['index', 'host/index'],
     ['catalog', 'domain/catalog'],
     ['discovery', 'discovery/index'],
-    ['model-capacities', 'data/model-capacities'],
   ]) {
     const [output, input] = await Promise.all([import(`../lib/${built}.js`), import(`../src/${source}.js`)])
     assert.deepEqual(Object.keys(output).sort(), Object.keys(input).sort(), `${built} export contract changed`)
@@ -58,7 +57,6 @@ test('bundled host and capacity modules preserve their source exports and route 
       const entries = [{ provider: 'gateway', model: 'alias', contextWindow: 64000 }]
       assert.deepEqual(output.planPiAiContextUpdate(section, entries), input.planPiAiContextUpdate(section, entries))
     }
-    if (built === 'model-capacities') assert.deepEqual(output.CAPACITY_CATALOG_INFO, input.CAPACITY_CATALOG_INFO)
   }
 })
 

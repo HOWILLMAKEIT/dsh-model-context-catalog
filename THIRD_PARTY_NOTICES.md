@@ -1,6 +1,6 @@
 # Third-party notices
 
-The bundled capacity reference facts are derived from the following public databases. Retrieval URLs, times and SHA-256 digests are recorded in src/data/model-capacities.js and included in lib/model-capacities.js.
+Capacity references are fetched on demand from the following public database and cached locally in the browser for 24 hours. Retrieval URLs and successful fetch times accompany cached records. The published plugin does not contain a capacity snapshot. Offline test fixtures derived from the same database retain their retrieval metadata and SHA-256 digest in test/fixtures/model-capacities.js.
 
 ## models.dev
 

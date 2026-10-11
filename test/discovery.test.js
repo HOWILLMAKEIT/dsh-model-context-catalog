@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createCapacityDiscovery, loadNativeContexts } from '../src/discovery/index.js'
 import { normalizeCapacitySources } from '../src/data/normalize.js'
-import { REFERENCE_MODEL_CAPACITIES, CAPACITY_CATALOG_INFO } from '../src/data/model-capacities.js'
+import { REFERENCE_MODEL_CAPACITIES, CAPACITY_CATALOG_INFO } from './fixtures/model-capacities.js'
 
 const record = (id, contextWindow = 1000000, overrides = {}) => ({
   id,
@@ -405,7 +405,7 @@ test('native catalog lookup uses only provider names, respects errors and bounds
   )
 })
 
-test('bundled reference snapshot covers mainstream coding families with positive sourced capacities', () => {
+test('offline reference fixture covers mainstream coding families with positive sourced capacities', () => {
   assert.equal(CAPACITY_CATALOG_INFO.records, REFERENCE_MODEL_CAPACITIES.length)
   assert.ok(REFERENCE_MODEL_CAPACITIES.length > 1000)
   const d = createCapacityDiscovery(REFERENCE_MODEL_CAPACITIES)

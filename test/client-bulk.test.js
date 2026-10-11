@@ -2,8 +2,19 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import React from 'react'
 import TestRenderer, { act } from 'react-test-renderer'
+import { createCatalogLoader } from '../src/data/catalog-loader.js'
+import { CATALOG_CACHE_VERSION } from '../src/data/catalog-source.js'
+import { REFERENCE_MODEL_CAPACITIES } from './fixtures/model-capacities.js'
+import { IDBFactory } from 'fake-indexeddb'
 
-async function fixture({ accepted = true, writable = true, language = 'zh', native = {}, unavailable = false } = {}) {
+async function fixture({
+  accepted = true,
+  writable = true,
+  language = 'zh',
+  native = {},
+  unavailable = false,
+  catalogLoader,
+} = {}) {
   let registration
   const previous = globalThis.window
   globalThis.window = {
@@ -111,6 +122,21 @@ async function fixture({ accepted = true, writable = true, language = 'zh', nati
       },
     },
   })
+  if (catalogLoader !== false)
+    props.catalogLoader =
+      catalogLoader ??
+      createCatalogLoader({
+        cache: {
+          read: async () => ({
+            version: CATALOG_CACHE_VERSION,
+            fetchedAt: Date.now(),
+            records: REFERENCE_MODEL_CAPACITIES,
+          }),
+        },
+        fetcher: async () => {
+          throw new Error('unexpected external request')
+        },
+      })
   let tree
   await act(async () => {
     tree = TestRenderer.create(React.createElement(Page, props))
@@ -120,6 +146,135 @@ async function fixture({ accepted = true, writable = true, language = 'zh', nati
 const button = (tree, label) => tree.root.findAllByType('button').find((node) => node.children.includes(label))
 const selected = (tree) =>
   tree.root.findAllByType('input').filter((node) => node.props.type === 'checkbox' && node.props.checked)
+
+test('built client fetches on click, displays downloaded metadata, and reuses persisted references without extra buttons', async () => {
+  const previousFetch = globalThis.fetch
+  const previousIndexedDB = globalThis.indexedDB
+  const requests = []
+  globalThis.indexedDB = new IDBFactory()
+  globalThis.fetch = async (...args) => {
+    requests.push(args)
+    const model = { name: 'GLM 5.3', limit: { context: 123456 }, modalities: { output: ['text'] } }
+    return {
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          providers: {
+            zai: { name: 'Z.AI', models: { 'glm-5.3': { ...model, canonical_model_id: 'zhipuai/glm-5.3' } } },
+          },
+          models: { 'zhipuai/glm-5.3': model },
+        }),
+    }
+  }
+  let f, reopened
+  try {
+    f = await fixture({ catalogLoader: false })
+    assert.equal(requests.length, 0)
+    assert.deepEqual(
+      f.tree.root
+        .findAllByType('button')
+        .slice(0, 2)
+        .map((node) => node.children[0]),
+      ['添加模型', '一键匹配'],
+    )
+    await act(async () => button(f.tree, '一键匹配').props.onClick())
+    assert.equal(requests.length, 1)
+    assert.match(JSON.stringify(f.tree.toJSON()), /1 个模型|已获取最新资料/)
+    assert.doesNotMatch(JSON.stringify(f.tree.toJSON()), /451 个模型/)
+    assert.equal(f.mutations.length, 0)
+    await act(async () => button(f.tree, '添加并启用 1 个模型').props.onClick())
+    assert.equal(f.mutations[0].ops[0].value.contextWindow, 123456)
+    assert.equal(requests.length, 1)
+    reopened = await fixture({ catalogLoader: false })
+    await act(async () => button(reopened.tree, '一键匹配').props.onClick())
+    assert.match(JSON.stringify(reopened.tree.toJSON()), /使用 24 小时内缓存/)
+    assert.equal(requests.length, 1)
+    assert.equal(requests[0][0], 'https://models.dev/catalog.json')
+    assert.equal(JSON.stringify(requests).includes('fixture-secret'), false)
+  } finally {
+    f?.tree.unmount()
+    reopened?.tree.unmount()
+    globalThis.fetch = previousFetch
+    if (previousIndexedDB === undefined) delete globalThis.indexedDB
+    else globalThis.indexedDB = previousIndexedDB
+  }
+})
+
+test('network failure keeps manual management available and displays stale-data status in both locales', async () => {
+  for (const language of ['zh', 'en']) {
+    const empty = await fixture({
+      language,
+      catalogLoader: createCatalogLoader({
+        cache: { read: async () => undefined },
+        fetcher: async () => {
+          throw new Error('offline')
+        },
+      }),
+    })
+    try {
+      await act(async () => button(empty.tree, language === 'zh' ? '一键匹配' : 'Match models').props.onClick())
+      assert.match(
+        empty.tree.root.findByProps({ role: 'alert' }).children.join(''),
+        language === 'zh' ? /无法获取容量资料/ : /Cannot fetch capacity references/,
+      )
+      assert.equal(empty.mutations.length, 0)
+      await act(async () => button(empty.tree, language === 'zh' ? '添加模型' : 'Add model').props.onClick())
+      assert.ok(empty.tree.root.findByType('form'))
+    } finally {
+      empty.tree.unmount()
+    }
+    const stale = await fixture({
+      language,
+      catalogLoader: createCatalogLoader({
+        cache: {
+          read: async () => ({
+            version: CATALOG_CACHE_VERSION,
+            fetchedAt: Date.now() - 86400001,
+            records: REFERENCE_MODEL_CAPACITIES,
+          }),
+        },
+        fetcher: async () => {
+          throw new Error('offline')
+        },
+      }),
+    })
+    try {
+      await act(async () => button(stale.tree, language === 'zh' ? '一键匹配' : 'Match models').props.onClick())
+      assert.match(
+        JSON.stringify(stale.tree.toJSON()),
+        language === 'zh' ? /更新失败，使用上次资料/ : /Refresh failed; using previous references/,
+      )
+      assert.equal(stale.mutations.length, 0)
+    } finally {
+      stale.tree.unmount()
+    }
+  }
+})
+
+test('configuration changed while downloading is rejected before displaying candidates', async () => {
+  let finish
+  const pending = new Promise((resolve) => {
+    finish = resolve
+  })
+  const f = await fixture({ catalogLoader: { load: () => pending } })
+  try {
+    let scanning
+    await act(async () => {
+      scanning = button(f.tree, '一键匹配').props.onClick()
+    })
+    assert.equal(button(f.tree, '匹配中…').props.disabled, true)
+    f.state.pi = { ...f.state.pi, revision: f.state.pi.revision + 1 }
+    await act(async () => {
+      finish({ records: REFERENCE_MODEL_CAPACITIES })
+      await scanning
+    })
+    assert.match(f.tree.root.findByProps({ role: 'alert' }).children.join(''), /请重新匹配/)
+    assert.equal(f.mutations.length, 0)
+    assert.equal(f.tree.root.findAllByType('table').length, 0)
+  } finally {
+    f.tree.unmount()
+  }
+})
 
 test('existing accurate entries remain available after deletion and can be re-added', async () => {
   const f = await fixture()
@@ -222,7 +377,7 @@ test('adopting configured windows keeps their values and exposes references as a
   }
 })
 
-test('bulk preview reads only local catalog providers and writes nothing until confirmation', async () => {
+test('bulk preview sends only provider names to DSH and writes nothing until confirmation', async () => {
   const f = await fixture()
   try {
     await act(async () => button(f.tree, '一键匹配').props.onClick())
