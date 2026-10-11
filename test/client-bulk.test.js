@@ -148,6 +148,42 @@ test('existing accurate entries remain available after deletion and can be re-ad
   }
 })
 
+test('Astra aliases show review and sourced alternatives in both locales, with existing windows preserved until selection', async () => {
+  for (const language of ['zh', 'en']) {
+    const f = await fixture({ language })
+    try {
+      f.state.pi.value.providers = { dmx: { models: [{ id: 'gpt-6-astra-cdx', contextWindow: 1000000 }] } }
+      await act(async () => button(f.tree, language === 'zh' ? '一键匹配' : 'Match models').props.onClick())
+      assert.equal(selected(f.tree).length, 0)
+      const menu = f.tree.root.findByType('select')
+      assert.equal(menu.props.value, 'configured:1000000')
+      assert.ok(menu.findAllByType('option').some((option) => option.children.join('').includes('OpenAI')))
+      assert.match(
+        JSON.stringify(f.tree.toJSON()),
+        language === 'zh' ? /模型信息匹配，待确认/ : /Model identity match; review/,
+      )
+      assert.equal(f.mutations.length, 0)
+      await act(async () => menu.props.onChange({ target: { value: 'context:1050000' } }))
+      const link = f.tree.root
+        .findAllByType('a')
+        .find((node) => node.props.href === 'https://models.dev/models/openai/gpt-6-astra')
+      assert.ok(link)
+      const sourceUrl = link.props.href
+      const checkbox = f.tree.root.findAllByType('input').find((node) => node.props.type === 'checkbox')
+      await act(async () => checkbox.props.onChange({ target: { checked: true } }))
+      await act(async () =>
+        button(f.tree, language === 'zh' ? '添加并启用 1 个模型' : 'Add and enable 1 models').props.onClick(),
+      )
+      const entry = f.state.catalog.value.entries['dmx::gpt-6-astra-cdx']
+      assert.equal(entry.contextWindow, 1050000)
+      assert.equal(entry.sourceUrl, sourceUrl)
+      assert.equal(entry.model, 'gpt-6-astra-cdx')
+    } finally {
+      f.tree.unmount()
+    }
+  }
+})
+
 test('adopting configured windows keeps their values and exposes references as an explicit alternative', async () => {
   const f = await fixture()
   try {

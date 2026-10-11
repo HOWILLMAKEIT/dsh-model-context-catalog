@@ -1,6 +1,7 @@
 import { validContextWindow as validWindow } from '../shared/contracts.js'
 import { compact, baseName, variants } from './names.js'
 import { providerEntries } from './providers.js'
+import { createIdentityMatcher, hasModelInformation } from './identity.js'
 
 /** Match model identities within a provider first, then within canonical defaults. */
 export function createModelMatcher(records) {
@@ -17,6 +18,8 @@ export function createModelMatcher(records) {
         base: names.map((v) => compact(baseName(v))).filter(Boolean),
       }
     })
+
+  const matchIdentity = createIdentityMatcher(indexed)
 
   function matchModel(id, name = id, provider = '', providerName = provider) {
     const providerRecords = providerEntries(indexed, provider, providerName)
@@ -39,7 +42,7 @@ export function createModelMatcher(records) {
         }
         const baseKeys = variants(query)
           .map((v) => compact(baseName(v)))
-          .filter((v) => v.length >= 2)
+          .filter((v) => v.length >= 2 && hasModelInformation(v))
         matches = pool.filter((item) => item.base.some((key) => baseKeys.includes(key)))
         if (matches.length) {
           method = fromName ? 'name' : 'version'
@@ -49,6 +52,20 @@ export function createModelMatcher(records) {
       if (matches.length) {
         referenceScope = matches[0].record.scope
         break
+      }
+    }
+    // Existing exact/known-alias matches take precedence over an inferred name.
+    if (!matches.length) {
+      for (const pool of [providerRecords, defaultRecords]) {
+        for (const query of [id, name]) {
+          matches = matchIdentity(pool, query)
+          if (matches.length) break
+        }
+        if (matches.length) {
+          method = 'fuzzy'
+          referenceScope = matches[0].record.scope
+          break
+        }
       }
     }
     const groups = new Map()

@@ -62,6 +62,67 @@ test('date and deployment-version suffixes match, but semantic versions and vari
   assert.equal(deepseek.matchModel('deepseek').choices.length, 0)
 })
 
+test('extracts Astra identity from reordered and decorated routes without rewriting them or selecting by default', () => {
+  const d = createCapacityDiscovery(REFERENCE_MODEL_CAPACITIES)
+  for (const id of ['gpt-6-astra-cdx', 'astra-gpt', 'astra', 'dmx/astra-gpt', 'DMX-GPT6-ASTRA-CDX']) {
+    const row = d.scanModels({ providers: { dmx: { models: [{ id, contextWindow: 1000000 }] } } })[0]
+    assert.equal(row.method, 'fuzzy', id)
+    assert.equal(row.referenceScope, 'model')
+    assert.equal(row.hasReference, true)
+    assert.equal(row.selectedByDefault, false)
+    assert.equal(row.model, id)
+    assert.equal(row.recommended.contextWindow, 1000000)
+    const reference = row.choices.find((choice) => choice.key === 'context:1050000')
+    assert.equal(reference.evidence[0].id, 'openai/gpt-6-astra')
+    assert.equal(reference.evidence[0].sourceUrl, 'https://models.dev/models/openai/gpt-6-astra')
+    const noWindow = d.scanModels({ providers: { dmx: { models: [{ id }] } } })[0]
+    assert.equal(noWindow.selectedByDefault, false)
+    assert.equal(noWindow.recommended.contextWindow, 1050000)
+  }
+  assert.equal(d.matchModel('opaque-route', 'Astra GPT (Coding Plan)', 'dmx').method, 'fuzzy')
+  // A dated catalog alias ending in "latest" must not reduce to the family alone.
+  assert.equal(d.matchModel('gpt', undefined, 'dmx').choices.length, 0)
+})
+
+test('inferred identities retain generations and model variants, and reject incomplete ambiguous information', () => {
+  const d = createCapacityDiscovery([
+    record('gpt-6-astra'),
+    record('gpt-6-astra-fast', 128000),
+    record('gpt-6-luna', 256000),
+    record('gpt-5-astra'),
+  ])
+  assert.equal(d.matchModel('astra-gpt').choices.length, 0, 'same capacity does not identify the generation')
+  assert.equal(d.matchModel('astra-6-gpt-cdx').recommended.contextWindow, 1000000)
+  assert.equal(d.matchModel('FAST-ASTRA-GPT-6-CDX').recommended.contextWindow, 128000)
+  for (const id of [
+    'gpt',
+    'gpt-6',
+    'gpt-7-astra-cdx',
+    'gpt-6.1-astra-cdx',
+    'claude-astra',
+    'gpt-6-astra-mini',
+    'gpt-6-astra-flashx',
+  ]) {
+    assert.equal(d.matchModel(id).choices.length, 0, id)
+  }
+})
+
+test('inferred models use the matched provider and prefer catalog exact matches to provider guesses', () => {
+  const d = createCapacityDiscovery([
+    record('openai/gpt-6-astra', 1050000),
+    record('gpt-6-astra', 128000, {
+      scope: 'provider',
+      provider: 'gateway',
+      providerName: 'Example Gateway',
+      canonicalId: 'openai/gpt-6-astra',
+    }),
+  ])
+  assert.equal(d.matchModel('astra-gpt', undefined, 'gateway').recommended.contextWindow, 128000)
+  assert.equal(d.matchModel('astra-gpt', undefined, 'custom', 'Example Gateway').referenceScope, 'provider')
+  assert.equal(d.matchModel('astra-gpt', undefined, 'dmx').recommended.contextWindow, 1050000)
+  assert.equal(d.matchModel('gpt-6-astra-cdx', 'gpt-6-astra').method, 'name')
+})
+
 test('input-only records are excluded; dated aliases use full context with confirmation', () => {
   const d = createCapacityDiscovery([
     record('gpt-4.1', 1047576, { provider: 'openai' }),

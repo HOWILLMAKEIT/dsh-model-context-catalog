@@ -86,7 +86,7 @@ const expectedFiles = [
   'lib/discovery.js',
   'lib/model-capacities.js',
   'assets/settings.png',
-  'assets/image1.png',
+  'assets/image.png',
 ].sort()
 const stdout = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts', '--loglevel=error'], {
   cwd: root,
