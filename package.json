@@ -1,6 +1,6 @@
 {
   "name": "dsh-model-context-catalog",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "One-click context window matching and selective bulk configuration for DeepSeek Harness models, with source references and manual management.",
   "type": "module",
   "main": "./lib/index.js",

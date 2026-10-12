@@ -130,7 +130,13 @@ export function createBatchPanel(React) {
                                     'aria-label': t('chooseCapacity', { route: `${row.provider} / ${row.model}` }),
                                     onChange: (event) => setChoices({ ...choices, [row.key]: event.target.value }),
                                   },
-                                  h('option', { value: '' }, t(row.conflict ? 'resolveConflict' : 'chooseReference')),
+                                  !choice
+                                    ? h(
+                                        'option',
+                                        { value: '', disabled: true },
+                                        t(row.conflict ? 'resolveConflict' : 'chooseReference'),
+                                      )
+                                    : null,
                                   row.choices.map((item) =>
                                     h(
                                       'option',
