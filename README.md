@@ -39,12 +39,17 @@
 ## 工作方式
 
 ```mermaid
-flowchart LR
-    A["点击一键匹配"] --> R["获取 models.dev 资料，24 小时内复用缓存"]
-    R --> B["匹配 DSH 已配置模型的容量与来源"]
-    B --> C["保留已有窗口或选择参考容量"]
-    C --> D["勾选模型并确认"]
-    D --> E["批量配置并持续同步"]
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "18px"}, "flowchart": {"nodeSpacing": 24, "rankSpacing": 28, "htmlLabels": false, "wrappingWidth": 420}}}%%
+flowchart TB
+    A["点击「一键匹配」"] --> B["获取 models.dev 容量资料<br/>首次或缓存超过 24 小时：在线获取<br/>否则：使用本地缓存"]
+    B --> C["匹配 DSH 已配置模型<br/>优先使用对应服务商的容量<br/>查不到时：参考模型目录默认容量"]
+    C --> D["核对容量与来源，勾选模型<br/>默认保留当前窗口<br/>需要改值时：选择参考容量"]
+    D --> E["点击「添加并启用」<br/>保存所选模型的上下文窗口<br/>按启用条目持续同步到 DSH"]
+
+    classDef action fill:#e8f0fe,stroke:#5675a6,color:#172b4d,stroke-width:1.5px;
+    classDef step fill:#f8fafc,stroke:#94a3b8,color:#1e293b,stroke-width:1px;
+    class A,E action;
+    class B,C,D step;
 ```
 
 插件通过 DSH 原生配置接口同步已有模型的 `contextWindow`，保留模型名称、API 地址、凭据、协议和输出上限。每个 provider / model 路由独立管理，同名模型在不同服务商下可以使用不同窗口。
