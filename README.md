@@ -7,6 +7,7 @@
 [![npm 总下载量](https://raw.githubusercontent.com/HOWILLMAKEIT/dsh-model-context-catalog/main/.github/badges/npm-downloads.svg)](https://www.npmjs.com/package/dsh-model-context-catalog)
 [![CI](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml/badge.svg)](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml)
 [![DSH Plugin](https://img.shields.io/badge/DSH-0.2-blue.svg)](https://github.com/deepseek-ai/deepseek-harness)
+[![Awesome DSH Plugin 已收录](https://img.shields.io/badge/Awesome_DSH_Plugin-%E5%B7%B2%E6%94%B6%E5%BD%95-8A2BE2.svg)](https://awesome-dsh-plugin.com/zh/p/HOWILLMAKEIT/dsh-model-context-catalog/)
 [![CLIProxyAPI Supported](https://img.shields.io/badge/CLIProxyAPI-supported-2ea44f.svg)](https://github.com/router-for-me/CLIProxyAPI)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
