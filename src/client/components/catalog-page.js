@@ -170,6 +170,7 @@ export function createCatalogPage(React) {
         ? h(BatchPanel, {
             rows: batch.rows,
             references: batch.references,
+            endpointStatuses: batch.endpointStatuses,
             writable: snapshot.writable && piSnapshot.status === 'ready',
             saving,
             onSave: addSelected,

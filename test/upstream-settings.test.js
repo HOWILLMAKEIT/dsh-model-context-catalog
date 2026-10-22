@@ -28,6 +28,7 @@ test('real DSH 0.2 SettingsForms projects the plugin Config and preserves redact
   }
   ctx.provide('hmr', { executing })
   ctx.provide('profileContext', { home })
+  ctx.provide('llm', { registerModelDiscovery: () => () => {} })
   ctx.provide('loader', { await: async () => {} })
   ctx.provide('configEditor', {
     configuration: () => entries.map((entry) => ({ entry, inherited: {}, override: entry.options.config })),

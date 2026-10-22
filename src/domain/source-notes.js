@@ -1,6 +1,7 @@
 /** Keep provenance readable; model IDs and raw data fields already have their own place. */
 export function capacitySourceNote(evidence) {
   if (evidence.scope === 'configured') return ''
+  if (evidence.scope === 'endpoint') return 'CLIProxyAPI'
   const name =
     evidence.scope === 'model'
       ? evidence.manufacturerName || evidence.manufacturer || evidence.providerName || evidence.provider

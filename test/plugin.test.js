@@ -16,6 +16,7 @@ function fixture({
   const effects = []
   const state = { revision: 0, section, entries }
   const ctx = {
+    llm: { registerModelDiscovery: () => () => {} },
     settings: {
       configure: (options) => {
         assert.deepEqual(options, { auto: false })

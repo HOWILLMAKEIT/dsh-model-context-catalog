@@ -7,6 +7,7 @@
 [![npm 总下载量](https://raw.githubusercontent.com/HOWILLMAKEIT/dsh-model-context-catalog/main/.github/badges/npm-downloads.svg)](https://www.npmjs.com/package/dsh-model-context-catalog)
 [![CI](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml/badge.svg)](https://github.com/HOWILLMAKEIT/dsh-model-context-catalog/actions/workflows/ci.yml)
 [![DSH Plugin](https://img.shields.io/badge/DSH-0.2-blue.svg)](https://github.com/deepseek-ai/deepseek-harness)
+[![CLIProxyAPI Supported](https://img.shields.io/badge/CLIProxyAPI-supported-2ea44f.svg)](https://github.com/router-for-me/CLIProxyAPI)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 **一键匹配模型上下文，勾选后批量配置。**
@@ -28,6 +29,7 @@
 | --- | --- |
 | **一键匹配模型上下文** | 扫描 DSH 已配置模型，自动查找上下文窗口及容量来源 |
 | **勾选后批量配置** | 逐项勾选或全选，确认后一次添加所选模型并启用管理 |
+| **CLIProxyAPI 容量获取** | 从已配置的 CLIProxyAPI 接口读取模型上下文容量，按模型 ID 匹配并展示来源 |
 | 自动获取容量资料 | 点击一键匹配时自动获取 models.dev 资料，涵盖 GPT、Claude、Gemini、DeepSeek、GLM、Qwen Coder、Kimi、MiniMax 等系列；缓存 24 小时，过期自动更新 |
 | 服务商容量匹配 | 优先使用对应服务商的容量；未命中时使用模型目录默认值，并展示来源链接 |
 | 模型名称与别名匹配 | 支持 `k3`、`m3` 等短名称、`astra-gpt` 等乱序名称，以及大小写、分隔符、服务商前缀和日期后缀 |
@@ -83,6 +85,19 @@ dsh plugin --profile web add dsh-model-context-catalog
 下拉选项会注明服务商或模型厂家；有多个参考值时，由你选择。**全选**会勾选已有可选容量的模型。模型配置在预览期间发生相关变更时，页面会提示重新匹配。
 
 已由插件管理的模型不重复添加，包括停用条目。**删除条目后，模型原有窗口仍保留，再次点击一键匹配即可重新添加。**
+
+### 自动获取 CLIProxyAPI（CPA）提供的模型容量
+
+[CLIProxyAPI（CPA）](https://github.com/router-for-me/CLIProxyAPI) 是一款模型 API 代理软件，可以接入 Claude、Gemini、Codex 等渠道，并通过模型列表接口提供上下文容量。
+
+点击 **一键匹配**，插件读取 DSH 中已配置服务商的 `baseURL`，通过服务端使用已有凭据和请求头，发送 `GET {baseURL}/models?client_version=1` 请求。查询用于 OpenAI Completions 和 Responses 路由；协议未填写时按 OpenAI Completions 查询。每个服务商查询一次。
+
+插件将响应中的 `models[].slug` 与该服务商下已配置的模型 ID 精确匹配，读取 `context_window` 作为上下文容量；该字段缺失或无效时，使用 `max_context_window`。匹配结果展示在容量下拉框中，来源标为 **CLIProxyAPI**。
+
+- 同时按模型名称匹配 models.dev 资料，将两种来源的容量一起展示。
+- 已有窗口默认保留；尚未设置窗口时，优先推荐 CLIProxyAPI 返回的容量。两种来源容量不同时，可以在下拉框中选择。
+- 接口查询失败或没有可用容量时，使用 models.dev 资料和当前配置。
+- 点击 **添加并启用**，保存所选容量并同步到 DSH。扫描后修改服务商配置，需要重新匹配。
 
 ### 手动管理
 

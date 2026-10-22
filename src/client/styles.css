@@ -467,7 +467,8 @@ select.mcc-input {
 }
 .mcc-batch-table th:first-child,
 .mcc-batch-table td:first-child {
-  width: 26px;
+  width: 48px;
+  white-space: nowrap;
 }
 .mcc-batch-table th:last-child {
   width: 42%;

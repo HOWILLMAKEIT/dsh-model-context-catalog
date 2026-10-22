@@ -12,6 +12,7 @@ async function fixture({
   writable = true,
   language = 'zh',
   native = {},
+  endpoint = {},
   unavailable = false,
   catalogLoader,
 } = {}) {
@@ -92,6 +93,8 @@ async function fixture({
       llm: {
         discoverModels: async (ns, request) => {
           probes.push({ ns, request })
+          if (ns === 'model-context-catalog')
+            return endpoint[request.provider] ?? { ok: false, error: { message: 'CAPACITY_unsupported' } }
           if (unavailable) throw new Error('transport unavailable')
           return native[request.provider]
             ? { ok: true, value: native[request.provider] }
@@ -214,8 +217,8 @@ test('network failure keeps manual management available and displays stale-data 
     try {
       await act(async () => button(empty.tree, language === 'zh' ? '一键匹配' : 'Match models').props.onClick())
       assert.match(
-        empty.tree.root.findByProps({ role: 'alert' }).children.join(''),
-        language === 'zh' ? /无法获取容量资料/ : /Cannot fetch capacity references/,
+        JSON.stringify(empty.tree.toJSON()),
+        language === 'zh' ? /models.dev 暂不可用/ : /models.dev unavailable/,
       )
       assert.equal(empty.mutations.length, 0)
       await act(async () => button(empty.tree, language === 'zh' ? '添加模型' : 'Add model').props.onClick())
@@ -381,7 +384,10 @@ test('bulk preview sends only provider names to DSH and writes nothing until con
   const f = await fixture()
   try {
     await act(async () => button(f.tree, '一键匹配').props.onClick())
-    assert.deepEqual(f.probes, [{ ns: 'llm-pi-ai', request: { provider: 'custom' } }])
+    assert.deepEqual(f.probes, [
+      { ns: 'llm-pi-ai', request: { provider: 'custom' } },
+      { ns: 'model-context-catalog', request: { provider: 'custom' } },
+    ])
     assert.equal(f.mutations.length, 0)
     assert.equal(selected(f.tree).length, 1)
     assert.match(JSON.stringify(f.tree.toJSON()), /日期 \/ 版本后缀匹配|默认保留|未找到资料/)
@@ -516,5 +522,88 @@ test('read-only and English bulk flows expose the same selection controls', asyn
     assert.match(JSON.stringify(english.tree.toJSON()), /Managed window and source/)
   } finally {
     english.tree.unmount()
+  }
+})
+
+test('endpoint references support private IDs, expose conflicts and keep existing windows until confirmation', async () => {
+  const f = await fixture({
+    endpoint: {
+      custom: {
+        ok: true,
+        value: [
+          { id: 'GLM-5.3', contextWindow: 200000 },
+          { id: 'unknown-model', contextWindow: 128000 },
+          { id: 'glm-5.3-flash', contextWindow: 256000 },
+        ],
+      },
+    },
+  })
+  try {
+    await act(async () => button(f.tree, '一键匹配').props.onClick())
+    const rendered = JSON.stringify(f.tree.toJSON())
+    assert.match(rendered, /已获取模型容量/)
+    assert.match(rendered, /容量来源：CLIProxyAPI/)
+    assert.match(rendered, /从服务商获取/)
+    assert.equal(f.mutations.length, 0)
+    assert.equal(
+      f.tree.root.findByProps({ 'aria-label': '选择 custom / GLM-5.3 的参考容量' }).props.value,
+      'endpoint:200000',
+    )
+    assert.equal(
+      f.tree.root.findByProps({ 'aria-label': '选择 custom / glm-5.3-flash 的参考容量' }).props.value,
+      'configured:64000',
+    )
+    assert.equal(selected(f.tree).length, 2)
+    await act(async () => button(f.tree, '添加并启用 2 个模型').props.onClick())
+    assert.deepEqual(
+      f.mutations[0].ops.map((op) => op.value.contextWindow),
+      [200000, 128000],
+    )
+    assert.ok(f.mutations[0].ops.every((op) => op.value.note.includes('CLIProxyAPI')))
+  } finally {
+    f.tree.unmount()
+  }
+})
+
+test('endpoint failure falls back to models.dev and models.dev failure still permits endpoint-only adoption', async () => {
+  const failed = await fixture({ endpoint: { custom: { ok: false, error: { message: 'CAPACITY_auth' } } } })
+  try {
+    await act(async () => button(failed.tree, '一键匹配').props.onClick())
+    assert.match(JSON.stringify(failed.tree.toJSON()), /接口认证失败/)
+    assert.equal(selected(failed.tree).length, 1)
+  } finally {
+    failed.tree.unmount()
+  }
+  const endpointOnly = await fixture({
+    endpoint: { custom: { ok: true, value: [{ id: 'unknown-model', contextWindow: 128000 }] } },
+    catalogLoader: {
+      load: async () => {
+        throw new Error('offline')
+      },
+    },
+  })
+  try {
+    await act(async () => button(endpointOnly.tree, '一键匹配').props.onClick())
+    assert.match(JSON.stringify(endpointOnly.tree.toJSON()), /models.dev 暂不可用/)
+    await act(async () => button(endpointOnly.tree, '添加并启用 1 个模型').props.onClick())
+    assert.equal(endpointOnly.mutations[0].ops[0].value.model, 'unknown-model')
+  } finally {
+    endpointOnly.tree.unmount()
+  }
+})
+
+test('changing a provider after endpoint preview refuses the old endpoint capacity', async () => {
+  const f = await fixture({
+    endpoint: { custom: { ok: true, value: [{ id: 'unknown-model', contextWindow: 128000 }] } },
+  })
+  try {
+    await act(async () => button(f.tree, '一键匹配').props.onClick())
+    f.state.pi = { ...f.state.pi, revision: f.state.pi.revision + 1 }
+    f.state.pi.value.providers.custom.baseURL = 'https://different.invalid/v1'
+    await act(async () => button(f.tree, '添加并启用 2 个模型').props.onClick())
+    assert.match(f.tree.root.findByProps({ role: 'alert' }).children.join(''), /重新匹配/)
+    assert.equal(f.mutations.length, 0)
+  } finally {
+    f.tree.unmount()
   }
 })

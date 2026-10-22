@@ -23,6 +23,9 @@ export function createClientPlugin(React) {
     const discoverBuiltin = remote?.llm?.discoverModels
       ? (provider) => remote.llm.discoverModels(PI_NS, { provider })
       : undefined
+    const discoverEndpoint = remote?.llm?.discoverModels
+      ? (provider) => remote.llm.discoverModels(SETTINGS_NS, { provider })
+      : undefined
     ctx.effect(installStyles, 'model-context-catalog: settings styles')
     ctx.effect(() => ctx.locale.register(LOCALE_NS, dictionaries), 'model-context-catalog: dictionaries')
     ctx.slots.inject('settings.section', () =>
@@ -32,7 +35,7 @@ export function createClientPlugin(React) {
           id: 'model-context-catalog',
           order: 11,
           label: () => t('nav'),
-          inject: () => ({ catalogScope, piScope, discoverBuiltin, catalogLoader, t }),
+          inject: () => ({ catalogScope, piScope, discoverBuiltin, discoverEndpoint, catalogLoader, t }),
         },
         CatalogPage,
       ),

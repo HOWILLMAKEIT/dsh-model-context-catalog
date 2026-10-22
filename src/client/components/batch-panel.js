@@ -1,8 +1,21 @@
 import { formatTokens } from '../models.js'
 
+function evidenceLabel(evidence, t) {
+  if (evidence.scope === 'configured') return t('keepCurrent')
+  if (evidence.scope === 'endpoint') return t('providerCapacity')
+  if (evidence.scope === 'model') return `${evidence.manufacturerName || evidence.provider} ${t('modelDefault')}`
+  return evidence.providerName || evidence.provider
+}
+
+function sourceLabel(evidence) {
+  if (evidence.scope === 'configured') return `fromCurrent_${evidence.windowSource}`
+  if (evidence.scope === 'endpoint') return 'fromEndpoint'
+  return evidence.scope === 'model' ? 'fromModelDefault' : 'fromProvider'
+}
+
 export function createBatchPanel(React) {
   const h = React.createElement
-  function BatchPanel({ rows, references, writable, saving, onSave, onCancel, onManual, t }) {
+  function BatchPanel({ rows, references, endpointStatuses = [], writable, saving, onSave, onCancel, onManual, t }) {
     const [choices, setChoices] = React.useState(() =>
       Object.fromEntries(rows.map((row) => [row.key, row.recommended?.key ?? ''])),
     )
@@ -22,13 +35,23 @@ export function createBatchPanel(React) {
         h(
           'div',
           { className: 'mcc-count' },
-          t('referenceSummary', {
-            count: references.info.modelRecords,
-            date: references.info.updatedAt.slice(0, 10),
-          }),
-          ' · ',
-          t(`references_${references.status}`),
+          references.status === 'unavailable'
+            ? t('references_unavailable')
+            : t('referenceSummary', {
+                count: references.info.modelRecords,
+                date: references.info.updatedAt.slice(0, 10),
+              }),
+          references.status === 'unavailable' ? '' : ` · ${t(`references_${references.status}`)}`,
         ),
+        ...endpointStatuses
+          .filter((item) => item.status !== 'unsupported')
+          .map((item) =>
+            h(
+              'div',
+              { key: item.provider, className: 'mcc-count', role: item.status === 'supported' ? undefined : 'status' },
+              t(`endpoint_${item.status}`, { provider: item.providerName || item.provider }),
+            ),
+          ),
         h(
           'div',
           { className: 'mcc-batch-tools' },
@@ -142,19 +165,17 @@ export function createBatchPanel(React) {
                                       'option',
                                       { key: item.key, value: item.key },
                                       `${formatTokens(item.contextWindow)} · ${item.evidence
-                                        .map((e) =>
-                                          e.scope === 'configured'
-                                            ? t('keepCurrent')
-                                            : e.scope === 'model'
-                                              ? `${e.manufacturerName || e.provider} ${t('modelDefault')}`
-                                              : e.providerName || e.provider,
-                                        )
+                                        .map((e) => evidenceLabel(e, t))
                                         .filter((v, i, values) => values.indexOf(v) === i)
                                         .join(' / ')}`,
                                     ),
                                   ),
                                 ),
-                            evidence && evidence.scope !== 'configured'
+                            row.conflict &&
+                              row.choices.some((item) => item.evidence.some((e) => e.scope === 'endpoint'))
+                              ? h('div', { className: 'mcc-batch-method' }, t('endpointConflict'))
+                              : null,
+                            evidence && !['configured', 'endpoint'].includes(evidence.scope)
                               ? h(
                                   'div',
                                   { className: 'mcc-batch-method' },
@@ -168,14 +189,7 @@ export function createBatchPanel(React) {
                               ? h(
                                   'div',
                                   { className: 'mcc-batch-method' },
-                                  t(
-                                    evidence.scope === 'configured'
-                                      ? `fromCurrent_${evidence.windowSource}`
-                                      : evidence.scope === 'model'
-                                        ? 'fromModelDefault'
-                                        : 'fromProvider',
-                                    { name: evidence.providerName || evidence.provider },
-                                  ),
+                                  t(sourceLabel(evidence), { name: evidence.providerName || evidence.provider }),
                                 )
                               : null,
                             evidence?.sourceUrl

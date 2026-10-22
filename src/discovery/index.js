@@ -1,11 +1,12 @@
 import { validContextWindow as validWindow, routeKey, catalogEntryKey } from '../shared/contracts.js'
 import { createModelMatcher } from './matching.js'
 import { capacitySourceNote } from '../domain/source-notes.js'
+import { mergeEndpointMatch } from './endpoint-catalog.js'
 import { managementChoices } from './management.js'
 export { loadNativeContexts } from './native-contexts.js'
 
 /** Candidate discovery and revalidation operate only on configured routes. */
-export function createCapacityDiscovery(records) {
+export function createCapacityDiscovery(records, endpointContexts = {}) {
   const matchModel = createModelMatcher(records)
   function scanModels(pi, entries = {}, nativeContexts = {}) {
     const rows = []
@@ -22,7 +23,13 @@ export function createCapacityDiscovery(records) {
         const key = routeKey(provider, model.id)
         if (seen.has(key) || managed.has(key)) continue
         seen.add(key)
-        const match = matchModel(model.id, model.name, provider, profile.displayName)
+        const match = mergeEndpointMatch(
+          matchModel(model.id, model.name, provider, profile.displayName),
+          endpointContexts[key],
+          provider,
+          model.id,
+          profile.displayName,
+        )
         const inherited = nativeContexts[provider]?.[model.id]
         const explicit = validWindow(model.contextWindow)
         const native = model.contextWindow == null && validWindow(inherited)
@@ -53,7 +60,8 @@ export function createCapacityDiscovery(records) {
           hasReference: match.choices.length > 0,
           reason,
           ...managementChoices(match, currentWindow, windowSource),
-          selectedByDefault: !validWindow(currentWindow) && match.method === 'exact' && Boolean(match.recommended),
+          selectedByDefault:
+            !validWindow(currentWindow) && ['exact', 'endpoint'].includes(match.method) && Boolean(match.recommended),
         })
       }
     }

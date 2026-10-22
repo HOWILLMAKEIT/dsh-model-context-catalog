@@ -1,3 +1,4 @@
+import { loadEndpointContexts } from '../discovery/endpoint-catalog.js'
 import { loadNativeContexts } from '../discovery/native-contexts.js'
 import { createCapacityDiscovery } from '../discovery/index.js'
 import { configuredModels } from './models.js'
@@ -13,7 +14,7 @@ export function createCatalogController(React) {
       React.useCallback(() => scope.getSnapshot(), [scope]),
     )
   }
-  return function useCatalogController({ catalogScope, piScope, discoverBuiltin, catalogLoader, t }) {
+  return function useCatalogController({ catalogScope, piScope, discoverBuiltin, discoverEndpoint, catalogLoader, t }) {
     const snapshot = useScope(catalogScope)
     const piSnapshot = useScope(piScope)
     const entries = snapshot.value?.entries ?? {}
@@ -60,17 +61,28 @@ export function createCatalogController(React) {
       try {
         const currentPi = piScope.getSnapshot()
         if (currentPi.status !== 'ready') throw new Error('NATIVE_CATALOG_UNAVAILABLE')
-        const [references, native] = await Promise.all([
-          catalogLoader.load(),
+        const [referenceResult, native, endpoint] = await Promise.all([
+          catalogLoader.load().catch(() => null),
           loadNativeContexts(Object.keys(currentPi.value?.providers ?? {}), discoverBuiltin),
+          loadEndpointContexts(Object.keys(currentPi.value?.providers ?? {}), discoverEndpoint),
         ])
-        const capacityDiscovery = createCapacityDiscovery(references.records)
+        const references = referenceResult ?? {
+          records: [],
+          status: 'unavailable',
+          info: { modelRecords: 0, updatedAt: '' },
+        }
+        const capacityDiscovery = createCapacityDiscovery(references.records, endpoint.contexts)
         const latestPi = piScope.getSnapshot()
         if (latestPi.revision !== currentPi.revision || latestPi.value !== currentPi.value)
           throw new Error('STALE_CANDIDATES')
         setBatch({
           rows: capacityDiscovery.scanModels(latestPi.value, catalogScope.getSnapshot().value?.entries ?? {}, native),
           native,
+          piRevision: latestPi.revision,
+          endpointStatuses: endpoint.statuses.map((item) => ({
+            ...item,
+            providerName: latestPi.value?.providers?.[item.provider]?.displayName || item.provider,
+          })),
           capacityDiscovery,
           references,
         })
@@ -151,7 +163,12 @@ export function createCatalogController(React) {
       try {
         const currentPi = piScope.getSnapshot()
         const currentCatalog = catalogScope.getSnapshot()
-        if (currentPi.status !== 'ready' || currentCatalog.status !== 'ready' || !currentCatalog.writable)
+        if (
+          currentPi.status !== 'ready' ||
+          currentCatalog.status !== 'ready' ||
+          !currentCatalog.writable ||
+          currentPi.revision !== batch.piRevision
+        )
           throw new Error('STALE_CANDIDATES')
         const plan = batch.capacityDiscovery.planSelectedEntries(
           currentPi.value,

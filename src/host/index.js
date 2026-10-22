@@ -1,10 +1,19 @@
 import z from '@deepseek-ai/schemastery'
+import { synchronizeContexts } from './synchronize.js'
+import { registerEndpointDiscovery } from './endpoint-catalog.js'
 import { catalogSettingsEntries } from '../domain/catalog.js'
 
 export const name = 'model-context-catalog'
-export const inject = ['settings']
+export const inject = ['settings', 'llm']
 
-export { synchronizeContexts as apply } from './synchronize.js'
+export function apply(ctx, config) {
+  const stopDiscovery = registerEndpointDiscovery(ctx)
+  const stopSync = synchronizeContexts(ctx, config)
+  return () => {
+    stopDiscovery()
+    stopSync()
+  }
+}
 export { CATALOG_SETTINGS_NAMESPACE } from '../shared/contracts.js'
 
 const CatalogEntrySchema = z.object({
